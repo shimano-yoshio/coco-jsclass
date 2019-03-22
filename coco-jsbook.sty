@@ -1,0 +1,520 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{coco-jsbook}
+   [2019/03/31 v1.0 Yoshio Shimano]
+\def\FileVerjou#1{\gdef\@FileVerjou{#1}}
+
+\usepackage{graphicx}
+
+\fboxsep=0.5em
+\fboxrule=0pt
+
+\usepackage[usenames,divpsnames,svgnames,table,hyperref]{xcolor}
+
+% 色の定義
+\definecolor{text-primary}{HTML}{007BFF}
+\definecolor{text-secondary}{HTML}{6C757D}
+\definecolor{text-success}{HTML}{28A745}
+\definecolor{text-info}{HTML}{17A2B8}
+\definecolor{text-warning}{HTML}{FFC107} 
+\definecolor{text-danger}{HTML}{DC3545}
+\definecolor{text-dark}{HTML}{343A40}
+\definecolor{text-muted}{HTML}{6C757D}
+\definecolor{text-light}{HTML}{F8F9FA}
+\definecolor{text-white}{HTML}{FFFFFF}
+
+\definecolor{teal}{RGB}{0,128,128}
+\definecolor{powderblue}{RGB}{176,224,230}
+\definecolor{darkslateblue}{RGB}{72,61,139}
+\definecolor{darkslategray}{RGB}{47,79,79}
+\definecolor{lightcyan}{RGB}{224,255,255}
+
+% tikz を使う
+\usepackage{tikz}
+\usetikzlibrary{shadings,shadows}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{patterns}
+\usetikzlibrary{spy}
+\usetikzlibrary{arrows.meta}
+
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[lmr]{mathcomp}
+\usepackage[utf8]{inputenc}
+% \usepackage{lmodern} % Latin Modern を使う
+\usepackage{tgheros}
+\usepackage{tgcursor}
+\renewcommand{\familydefault}{\sfdefault} % サンセリフを本文で使う
+
+% 数式フォント
+% \usepackage{mathpazo}
+\usepackage{ccfonts}
+\usepackage{eulervm}
+% \usepackage{newpxtext,newpxmath}
+
+\usepackage[uplatex,jis2004,expert,deluxe]{otf}
+
+\renewcommand{\kanjifamilydefault}{\gtdefault}
+
+\renewcommand{\bfdefault}{bx}
+
+\usepackage[pagecolor={White!95!Black}]{pagecolor}
+
+\setlength{\textwidth}{\fullwidth}
+
+% 行間の設定
+\setlength{\baselineskip}{0.8 ex}
+
+% 段落のインデントをなくし、段落の間を空ける
+\usepackage[skip=1.2em]{parskip}
+
+\usepackage[usetype1]{uline--}
+
+\usepackage[usetype1]{uline--}
+
+\renewcommand{\emph}[1]{%
+  {\sffamily\bfseries\itshape%
+    \uline[
+      background,
+      color={[rgb]{1,1,0.0}},
+      width=0.8em,position=1pt]{#1}}}
+
+\newcommand{\sout}[1]{\mline{#1}}
+
+\usepackage[top=25truemm,bottom=25truemm,inner=10truemm,outer=10truemm]{geometry}
+
+\renewcommand{\tableofcontents}{%
+  \if@twocolumn
+  \else
+    \@restonecolfalse
+  \fi
+  \chapter*{\contentsname%
+ 	\@mkboth{\contentsname}{\contentsname}%
+  	\pdfbookmark{\contentsname}{contents}}
+  \@starttoc{toc}%
+  \if@restonecol\twocolumn\fi
+}
+
+% 色の設定
+\def \@default@gray@level {.15}
+
+\renewcommand{\l@chapter}[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \addvspace{.5\cvs \@plus \p@ \@minus \p@}
+    \begingroup
+      \parindent = \z@ \relax
+      \rightskip = \@tocrmarg \relax
+      \parfillskip = -\rightskip \relax
+      \leavevmode \large \sffamily
+      \@lnumwidth = 4.683zw\relax
+      \advance \leftskip \@lnumwidth \hskip-\leftskip
+      \hb@xt@ \z@{\color[cmyk]{0,0,0,\@default@gray@level}%
+          \vrule \@height 1em \@width 3pt \@depth 1ex\hss}%
+      \hskip 6pt #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss#2}\par
+        {\color[cmyk]{0,0,0,\@default@gray@level}%
+          \hrule \@width \linewidth \@height 3pt}%
+      \par\nobreak\vskip6pt
+      \penalty\@highpenalty
+    \endgroup
+  \fi
+}
+
+
+% 目次のセクションレベルの変更
+\renewcommand{\l@section}[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \addvspace{.5\cvs \@plus \p@ \@minus \p@}
+    \begingroup
+      \parindent = \z@ \relax
+      \rightskip = \@tocrmarg \relax
+      \parfillskip = -\rightskip \relax
+      \leavevmode \normalsize \sffamily
+      \@lnumwidth = 4.683em\relax
+      \advance \leftskip \@lnumwidth \hskip-\leftskip
+      \hb@xt@ \z@{\color[cmyk]{0,0,0,\@default@gray@level}%
+          \vrule \@height 1em \@width 3pt \@depth 1ex\hss}%
+      \hskip 6pt #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss#2}\par
+        {\color[cmyk]{0,0,0,\@default@gray@level}%
+          \hrule \@width \linewidth \@height 0.5ex}%
+      \par\nobreak\vskip6pt
+      \penalty\@highpenalty
+    \endgroup
+  \fi
+}
+
+\renewcommand*{\l@subsection}{\@dottedtocline{1}{1em}{3em}}
+\renewcommand*{\l@subsubsection}{\@dottedtocline{2}{3em}{4em}}
+
+% 行の終わりまでドットを描く
+\def\@dottedtocline#1#2#3#4#5{\ifnum #1>\c@tocdepth \else
+  \vskip \z@ \@plus.2\p@
+  {%\ifnum#1=2\small\fi
+    \leftskip #2\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+    \parindent #2\relax\@afterindenttrue
+   \interlinepenalty\@M
+   \leavevmode
+   \@lnumwidth #3\relax
+   \advance\leftskip \@lnumwidth \null\nobreak\hskip -\leftskip
+    {#4}\nobreak
+    \leaders\hbox{$\m@th \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
+       mu$}\hfill \nobreak\hb@xt@\@pnumwidth{%
+         \hfil%\ifnum#1=2\normalsize\fi
+         \normalfont \normalcolor #5}\par}\fi}
+
+% 図目次の変更
+\renewcommand{\listoffigures}{%
+  \if@twocolumn\@restonecoltrue\onecolumn
+  \else\@restonecolfalse\fi
+  \section*{\listfigurename % \section* レベル
+    \@mkboth{\listfigurename}{\listfigurename}%
+      \pdfbookmark{\listfigurename}{listoffigures}}% append
+  \@starttoc{lof}%
+  \if@restonecol\twocolumn\fi
+}
+
+% 表目次の変更
+\renewcommand{\listoftables}{%
+  \if@twocolumn\@restonecoltrue\onecolumn
+  \else\@restonecolfalse\fi
+  \section*{\listtablename % \section* レベル
+  \@mkboth{\listtablename}{\listtablename}%
+  \pdfbookmark{\listtablename}{listoftables}}% append
+  \@starttoc{lot}%
+  \if@restonecol\twocolumn\fi
+}
+
+\global\let\@ConfidentialLevel\@empty
+\def\ConfidentialLevel#1{\gdef\@ConfidentialLevel{#1}}
+
+\setlength{\footskip}{10truemm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\rightmark}{}
+\rhead{}{\leftmark}
+\rfoot{% フッター右側に「部外秘」を出力
+    \ifx\@ConfidentialLevel\@empty
+    \else
+      \tcbox[colback=white,colframe=red,size=small,on line]{
+        \textcolor{red}{\sffamily \bfseries {\@ConfidentialLevel}}
+    }\fi%
+  }
+\cfoot{\thepage}% フッター中央にページ番号を出力
+
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins,raster,listings}
+\tcbuselibrary{external}
+\tcbuselibrary{minted} % プログラムリスト用に minted を使う
+\tcbEXTERNALIZE
+
+\newtcolorbox[
+  auto counter,
+  number within=section]{pabox}[2][]{%
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries,
+  title=例~\thetcbcounter: #2,#1}
+
+\newtcolorbox{marker}[1][]{enhanced,
+  before skip=2mm,
+  after skip=3mm,
+  boxrule=0.4pt,
+  left=5mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm,
+  colback=yellow!50,
+  colframe=yellow!20!black,
+  sharp corners,
+  rounded corners=southeast,
+  arc is angular,
+  arc=3mm,
+  underlay={%
+    \path[fill=tcbcol@back!80!black] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[draw=tcbcol@frame,shorten <=-0.05mm,shorten >=-0.05mm] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[fill=yellow!50!black,draw=none] (interior.south west) rectangle node[white]{\Huge\bfseries !} ([xshift=4mm]interior.north west);
+    },
+  drop fuzzy shadow,#1}
+
+\newtcblisting[
+  auto counter,
+  number within=section,
+  list inside=box]{programlist}[3][]{
+  listing engine=minted,% リスト環境は minted
+  minted style=monokai,% 使用するテーマ
+  minted language=#2, % 使用する言語
+  minted options={fontsize=\small,
+                  breaklines,% 途中で改行する
+                  breakanywhere},%
+  title={\sffamily\bfseries リスト \thetcbcounter #3},
+  #1,% ラベル
+  breakable,%
+  colback=black!90!white,
+  colupper=white,
+  colframe=blue!75!white,
+  listing only,%
+  left=0mm,
+  enhanced,%
+   }%
+
+\newtcblisting{shellinput}[1][]{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+  title=#1,
+  listing only,
+  minted language=shell-session,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+
+\newtcblisting{shelloutput}[1][]{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+  title=#1,
+  listing only,
+  minted language=shell-session,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+
+\newtcblisting{exampleoutput}{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+%  title=出力,
+  listing only,
+  minted language=text,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+
+\makeatletter
+\def\tcb@addcontentsline#1#2{%
+  \ifx\kvtcb@listentry\@empty%
+    \ifx\kvtcb@title\@empty%
+      \ifx\tcbtitletext\@empty%
+        \addcontentsline{#1}{#2}{{\ignorespaces\kvtcb@savedelimiter}}%
+      \else%
+        \addcontentsline{#1}{#2}{{\ignorespaces\tcbtitletext}}%
+      \fi%
+    \else%
+      \addcontentsline{#1}{#2}{{\ignorespaces\kvtcb@title}}%
+    \fi%
+  \else%
+    \addcontentsline{#1}{#2}{\kvtcb@listentry}%
+  \fi%
+}
+\makeatother
+
+\renewcommand\listingscaption{プログラムコード}
+
+\renewcommand\listoflistingscaption{プログラムコードのリスト}
+
+\usepackage{titlesec}
+% \usepackage{anyfontsize}
+% 章にも他と同じヘッダー、フッターのスタイルを適用する
+\assignpagestyle{\chapter}{fancy}
+
+% セクションの前で改ページを行なう
+\newcommand{\sectionbreak}{\clearpage}
+
+\titleformat{\chapter}
+[hang]
+{\LARGE\sffamily\bfseries}
+{\colorbox{blue}{\color{white}\thechapter}}
+{1zw}
+{}%
+[{\titlerule[1pt]}]
+
+\titleformat{\section}
+[hang]
+{\Large\sffamily\bfseries}
+{\colorbox{blue}{\color{white}\thesection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+
+\titleformat{name=\section,numberless}
+[hang]
+{\Large\sffamily\bfseries}
+{}{12pt}{}%
+[{\titlerule[0.5pt]}]
+
+\titleformat{\subsection}
+[hang]
+{\large\sffamily\bfseries}
+{\colorbox{teal}{\color{white}\thesubsection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+
+\titleformat{\subsubsection}
+[hang]
+{\large\sffamily\bfseries}
+{\colorbox{darkslateblue}{\color{white}\thesubsubsection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+
+\titlespacing*{\section}{0em}{2em}{2em}
+\titlespacing*{\subsection}{0em}{2em}{2em}
+\titlespacing*{\subsubsection}{0em}{2em}{2em}
+\titlespacing*{\paragraph}{0em}{2em}{2em}
+
+% define lightgray
+\definecolor{lightgray}{gray}{0.9}
+
+% alternate rowcolors for all tables
+\let\oldtabular\tabular
+\let\endoldtabular\endtabular
+\renewenvironment{tabular}{\rowcolors{2}{white}{lightgray}\oldtabular}{\endoldtabular}
+
+\usepackage{enumitem}
+
+\setlistdepth{20}
+
+\renewlist{itemize}{itemize}{20}
+\setlist[itemize]{
+  label=\textbullet, 
+  partopsep=0em,
+  parsep=0.3em,
+  labelindent=2em,
+  leftmargin=2em}
+
+\renewlist{enumerate}{enumerate}{20}
+  \setlist[enumerate]{
+    leftmargin=!, 
+    font=\sffamily\bfseries,
+    label*=\arabic*.,% ラベルを 1., 1.1. 1.1.1 に
+%    label=\arabic*, 
+    itemindent=!, 
+    topsep=0.3em,
+    partopsep=0.3em,
+    parsep=0.3em,
+    labelsep=!, 
+    labelwidth=!, 
+    labelindent=2em}
+
+\renewlist{description}{description}{20}
+\setlist[description]{
+  font=\sffamily\bfseries, 
+  style=nextline,
+  labelindent=2em,% ラベルのインデント量
+  }
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+
+\usepackage{hyperref}
+
+\usepackage{pxjahyper}
+
+\usepackage{makeidx}
+
+\makeindex
+
+% ファイルのバージョン
+\global\let\@FileVersion\@empty
+\def\FileVersion#1{\gdef\@FileVersion{#1}}
+
+% コピーライト所有者
+\global\let\@CopyrightAuthor\@empty
+\def\CopyrightAuthor#1{\gdef\@CopyrightAuthor{#1}}
+
+% コピーライトが発生した年
+\global\let\@CopyrightYear\@empty
+\def\CopyrightYear#1{\gdef\@CopyrightYear{#1}}
+
+% タイトルにのせる画像
+\global\let\@TitlePicture\@empty
+\def\TitlePicture#1{\gdef\@TitlePicture{#1}}
+
+% コンタクト情報
+\global\let\@ContactInfo\@empty
+\def\ContactInfo#1{\gdef\@contact{#1}}
+% \global\let\@version\@empty
+
+% 表紙ページのスタイルの変更
+\renewcommand{\maketitle}{%
+  % 表紙を PDF の目次にいれる
+  \pdfbookmark{表紙}{titlepage}% PDF のしおりに表紙をのせる
+  \begin{titlepage}%
+    \parindent=0pt%
+    \let\footnotesize\small%
+    \let\footnoterule\relax%
+    \let\footnote\thanks%
+    \null\vskip3em%
+    % タイトル
+    \hbox to \fullwidth{%
+      \huge\sffamily\bfseries\@title\hfill}
+      \par\vskip\fboxsep
+    \hrule height 0.5ex\par\vskip\fboxsep
+    % 著者名
+    \hbox to \fullwidth{{\large\@author}\hfill}\par
+    % ファイルのバージョン
+    \ifx\@FileVersion\@empty
+    \else
+      \hbox to \fullwidth{
+         {\large Version: {\@FileVersion}}
+      \hfill}\par
+    \fi
+    % 日付
+    \hbox to \fullwidth{{\large\@date}\hfill}\par
+    % 機密情報のレベル表示
+    \ifx\@ConfidentialLevel\@empty
+    \else
+    \tcbox[colback=white,colframe=red,size=small,on line]{
+      \textcolor{red}{\sffamily \bfseries {\@ConfidentialLevel}}
+    }\fi%
+    % 画像の挿入
+    \ifx\@TitlePicture\@empty
+    \else
+      \vfill
+      \hrule \@height .8pt \@width \fullwidth
+      \vskip.5\cvs
+      \hb@xt@ \fullwidth {
+        \hfil
+        \includegraphics[width=.9\linewidth]{\@TitlePicture}
+        \hfil}\par
+      \vskip.5\cvs
+      \hrule \@height .8pt \@width \fullwidth
+    \fi
+    \vfill
+    % コンタクト情報
+    \ifx\@ContactInfo\@empty
+       \@thanks\vfil\null%
+    \else
+       \vfill\@contact\vskip 3ex
+    \fi%
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+  \thispagestyle{empty}
+  \vspace*{\fill}
+  % コピーライト情報
+  {\hfil Copyright 
+   {\textcopyright} 
+    \space 
+    % コピーライトが発生した年
+    \ifx\@CopyrightYear\@empty
+       \the\year
+    \else
+       \@CopyrightYear
+    \fi
+    \space 
+    \ifx\@CopyrightAuthor\@empty
+      \@author
+    \else
+      \@CopyrightAuthor\hfil
+    \fi
+  }\\
+  \begin{quotation}
+  \end{quotation}
+  \begin{quotation}
+    本文章に記載されている企業，団体の名前や製品名等は
+    それぞれの権利帰属者の商標または商標登録であり所有物です．
+    本文章では{\texttrademark}及び{\textregistered}は明記し
+    ていません．
+  \end{quotation}}%

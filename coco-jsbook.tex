@@ -1,0 +1,1483 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[dvipdfmx,a4j,14pt,uplatex,openany]{jsbook}
+                  \usepackage{coco-jsbook}
+\FileVersion{1.0}
+\CopyrightAuthor{島野善雄}
+\CopyrightYear{2019}
+\ConfidentialLevel{機密情報}
+\author{島野 善雄\thanks{shimano.yoshio@jp.fujitsu.com}}
+\date{\today}
+\title{jsbook 用カスタムパッケージ}
+\hypersetup{
+   bookmarks=true,
+   bookmarksnumbered=true,
+   colorlinks=true,
+   setpagesize=false,
+   linkcolor=blue,
+   citecolor=blue,
+   backref,
+   pdfauthor={島野 善雄},
+   pdftitle={jsbook 用カスタムパッケージ},
+   pdfkeywords={Linux \LaTeX{}},
+   pdfsubject={\LaTeX{} Tips},
+   pdfcreator={Emacs 25.2.2 (Org mode 9.2.2)}, 
+   pdflang={Ja}}
+  \begin{document}
+
+\maketitle
+\setcounter{tocdepth}{4}
+\tableofcontents
+
+\color{Black!95!White}
+\chapter{このパッケージについて}
+\label{sec:orga40a41a}
+\index{LaTeX}
+\section{これは何か？}
+\label{sec:org49fd5c8}
+jsbook 用の、個人的にカスタマイズしたスタイルと、
+それを使った例です。
+
+
+\section{動機}
+\label{sec:org55e37b0}
+長い間 \LaTeX を利用してきましたが、自分でスタイルファイルを
+書いたことは今までありませんでした。
+たくさんの方が書いてくださったスタイルファイルで満足だったのです。
+
+しかし最近、目が悪くなって紙の書籍を読まなくなり、 PDF をタブレット上で
+読むようになりました。
+そうすると、 \LaTeX のデフォルト、題名はゴシック体で、本文は
+明朝体でという組版が気になりだしました。
+また、 \LaTeX のマクロを勉強する気になりました。
+
+よって、このスタイルファイルを書きました。
+
+このスタイルファイルでは次のことを変更しています:
+
+\begin{itemize}
+\item 見出しだけでなく、本文もゴシック体で組んでいる
+\item タイトルの変更
+\item 見出しのタイトルの変更
+\item tcolorbox による、「かっこういい」プログラムリスト
+\item \emph{文字の強調の変更}
+\item 「機密レベル」を右フッターに出力
+\item 余白を狭く
+\end{itemize}
+
+\section{確認環境}
+\label{sec:orgc87ffe5}
+以下の環境で確認を行なっています。
+
+\begin{description}
+\item[{OS}] Ubuntu 18.10
+\item \TeX{} 環境: Texlive 2018
+\end{description}
+
+\section{謝辞}
+\label{sec:orgfd9a86b}
+このパッケージを作るにあたり、インターネット上の
+たくさんの方々の情報を活用させていただきました。
+深く感謝いたします。
+
+\chapter{パッケージの実装}
+\label{sec:orgc12e06f}
+このセクションでは実際のパッケージの実装を説明します。
+
+\section{パッケージ宣言}
+\label{sec:orgc7c8f83}
+スタイルファイルを作成するには、まず、パッケージを宣言します。
+
+\begin{programlist}[label={org00b8f68}]{latex}{: パッケージ宣言}\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{coco-jsbook}
+   [2019/03/31 v1.0 Yoshio Shimano]
+\def\FileVerjou#1{\gdef\@FileVerjou{#1}}
+\end{programlist}
+
+各行の意味は次のとおりです:
+
+\begin{description}
+\item[{\texttt{\textbackslash{}NeedsTeXFormat\{LaTeX2e\}}}] 使用するバージョンを指定します。
+\item[{\texttt{\textbackslash{}ProvidesPackage\{coco-jsbook\}}}] 提供するパッケージ名を定義します。
+\item[{\texttt{[2019/02/29 v1.0 Yoshio Shimano]}}] このパッケージのバージョン情報です。
+\texttt{2019/02/29} はこの書式でなければなりません。
+\end{description}
+
+\section{図関係の設定}
+\label{sec:orgc6b3a61}
+\subsection{図をとりこむ}
+\label{sec:orgc7347ca}
+図を取り込むために、定番の \texttt{graphicx} パッケージを使います
+
+\begin{programlist}[label={org7dd5133}]{latex}{: graphicx パッケージを使う}\usepackage{graphicx}
+\end{programlist}
+
+\subsection{fcolorbox の設定}
+\label{sec:org9de61e1}
+\begin{programlist}[label={orgb1a2d9e}]{latex}{: fcolorbox の設定}\fboxsep=0.5em
+\fboxrule=0pt
+\end{programlist}
+
+\subsection{色を使う}
+\label{sec:orgc1e728a}
+色を使うために、 \texttt{xcolor} を使っています。
+
+\begin{programlist}[label={org3b48ab2}]{latex}{: xcolor を使う}\usepackage[usenames,divpsnames,svgnames,table,hyperref]{xcolor}
+\end{programlist}
+
+\subsection{色を定義する}
+\label{sec:orga1a72c7}
+Bootstrap の色を定義します。
+Bootstrap で使われている色は次のとおりです:
+
+\begin{table}[htbp]
+\caption{\label{tab:org2a6dd70}
+bootstrap の色定義}
+\centering
+\begin{tabular}{rll}
+\hline
+ & クラス名 & 色コード\\
+\hline
+1 & text-primary & \#007BFF\\
+2 & text-secondary & \#6C757D\\
+3 & text-success & \#28A745\\
+4 & text-info & \#17A2B8\\
+5 & text-warning & \#FFC107\\
+6 & text-danger & \#DC3545\\
+7 & text-dark & \#343A40\\
+8 & text-muted & \#6C757D\\
+9 & text-light & \#F8F9FA\\
+10 & text-white & \#FFFFFF\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{programlist}[label={org794f667}]{latex}{: 色の定義}% 色の定義
+\definecolor{text-primary}{HTML}{007BFF}
+\definecolor{text-secondary}{HTML}{6C757D}
+\definecolor{text-success}{HTML}{28A745}
+\definecolor{text-info}{HTML}{17A2B8}
+\definecolor{text-warning}{HTML}{FFC107} 
+\definecolor{text-danger}{HTML}{DC3545}
+\definecolor{text-dark}{HTML}{343A40}
+\definecolor{text-muted}{HTML}{6C757D}
+\definecolor{text-light}{HTML}{F8F9FA}
+\definecolor{text-white}{HTML}{FFFFFF}
+
+\definecolor{teal}{RGB}{0,128,128}
+\definecolor{powderblue}{RGB}{176,224,230}
+\definecolor{darkslateblue}{RGB}{72,61,139}
+\definecolor{darkslategray}{RGB}{47,79,79}
+\definecolor{lightcyan}{RGB}{224,255,255}
+\end{programlist}
+
+
+\begin{itemize}
+\item text-primary --- \colorbox{text-primary}{text-primary}
+\item text-secondary--- \colorbox{text-secondary}{text-secondary}
+\item text-success--- \colorbox{text-success}{text-success}
+\item text-info--- \colorbox{text-info}{text-info}
+\item text-warning--- \colorbox{text-warning}{text-warning}
+\item text-danger--- \colorbox{text-danger}{text-danger}
+\item text-dark --- \colorbox{text-dark}{text-dark}
+\item text-muted--- \colorbox{text-muted}{text-muted}
+\item text-light--- \colorbox{text-light}{text-light}
+\item text-white--- \colorbox{text-white}{text-white}
+\item teal        --- \colorbox{teal}{teal}
+\item powderblue  --- \colorbox{powderblue}{powderblue}
+\item darkslateblue  --- \colorbox{darkslateblue}{darkslateblue}
+\item darkslategray  --- \colorbox{darkslategray}{darkslategray}
+\item lightcyan  --- \colorbox{lightcyan}{lightcyan}
+\end{itemize}
+
+\subsection{tikz 設定}
+\label{sec:orgc547dac}
+tikz 設定 の設定です。後述の tcolorbox のために
+使っています。
+
+\begin{programlist}[label={org2702d5d}]{latex}{: tikz 設定}% tikz を使う
+\usepackage{tikz}
+\usetikzlibrary{shadings,shadows}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{patterns}
+\usetikzlibrary{spy}
+\usetikzlibrary{arrows.meta}
+\end{programlist}
+
+\section{フォントの設定}
+\label{sec:org1aee007}
+文書で使うフォントの設定を行ないます。
+
+\subsection{欧文フォントの設定}
+\label{sec:org985af1e}
+欧文フォントを使う設定です。
+欧文フォントには、 \TeX{} Gyre の Hero（サンセリフ体）を
+使っています。
+
+\begin{programlist}[label={orga6c8eca}]{latex}{: 欧文フォントに必用なパッケージ}\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[lmr]{mathcomp}
+\usepackage[utf8]{inputenc}
+% \usepackage{lmodern} % Latin Modern を使う
+\usepackage{tgheros}
+\usepackage{tgcursor}
+\renewcommand{\familydefault}{\sfdefault} % サンセリフを本文で使う
+\end{programlist}
+
+\subsection{数式フォントの設定}
+\label{sec:orgefb6971}
+『数学ガール』のファンなので、
+数式用フォントには \texttt{eulervm} を使います。
+
+\begin{programlist}[label={orgc687366}]{latex}{: 数式フォントの設定}% 数式フォント
+% \usepackage{mathpazo}
+\usepackage{ccfonts}
+\usepackage{eulervm}
+% \usepackage{newpxtext,newpxmath}
+\end{programlist}
+
+\subsection{和文フォントの設定}
+\label{sec:orgece0abb}
+和文フォントは OTF パッケージを使っています。
+
+こんな文字が出したいです。
+
+\begin{itemize}
+\item 白鴎と白鷗
+\item 「吉野家」と「𠮷野家」
+\item 森鷗外と内田百閒とが髙島屋に行くところを想像した。
+\item 葛飾区の𠮷野家
+\item Macintosh用キーボードの⌘(Command key)を押す。
+\item ♲ を心がけよう。
+\end{itemize}
+
+\begin{programlist}[label={orgb150413}]{latex}{: otf パッケージ}\usepackage[uplatex,jis2004,expert,deluxe]{otf}
+\end{programlist}
+
+\begin{description}
+\item[{uplatex}] upLaTeX を使います。
+\item[{jis2004}] 可能であれば、jis2004 の文字を使います。
+\item[{expert }] 横書きと縦書きで違う文字を使います。
+\item[{deluxe }] 書体がたくさん使えるようになります。
+\end{description}
+
+\subsection{本文をゴシック体にする}
+\label{sec:orgdc466f5}
+本文をゴシック体にする設定です。
+好みがあると思いますが、私にとっては本文もゴシック体のほうが
+読みやすいです。
+
+\begin{programlist}[label={orgd7005a9}]{latex}{: ゴシック体を本文に使う}\renewcommand{\kanjifamilydefault}{\gtdefault}
+\end{programlist}
+
+\subsection{日本語の太字をだす}
+\label{sec:org2826421}
+\TeX Gyre を使うと、 日本語の太字が出なくなります。
+その回避方法です。
+
+\begin{programlist}[label={org83e3c99}]{latex}{: 日本語の太字を出す}\renewcommand{\bfdefault}{bx}
+\end{programlist}
+
+\section{背景色の変更}
+\label{sec:org41c5d25}
+ページの背景色をちょっとだけ黒くします。
+真っ白な背景色だと眩しいので変更しています。
+
+\texttt{White!95!Black} は、白95\%、黒5\%という意味です。
+
+
+\begin{programlist}[label={org85d0274}]{latex}{: ページの背景色をちょっとだけ黒くする}\usepackage[pagecolor={White!95!Black}]{pagecolor}
+\end{programlist}
+
+\section{テキストの調整}
+\label{sec:org8b0e76d}
+\subsection{テキストをページ一杯にひろげる}
+\label{sec:org97f92a1}
+テキストをページ一杯に拡げます。
+jsbook では効果はないかもしれません。
+
+\begin{programlist}[label={org0c5d351}]{latex}{: テキストをページ一杯に拡げる}\setlength{\textwidth}{\fullwidth}
+\end{programlist}
+
+\subsection{行間の変更}
+\label{sec:org0cb0388}
+行間を拡げます。
+広いほうが好みなので、半角の高さ（=ex=）の 0.8 倍にしています。
+これ以上にすると、ちょっと広すぎるようです。
+
+\begin{programlist}[label={org5de4ae6}]{latex}{: 行間の設定}% 行間の設定
+\setlength{\baselineskip}{0.8 ex}
+\end{programlist}
+
+\subsection{段落の調整}
+\label{sec:orga0c9bef}
+段落の先頭にあるインデントをなくし、
+段落間の空きをふやします。
+
+\begin{itemize}
+\item \href{https://tex.stackexchange.com/questions/358588/parskip-and-title-spacing-conflict}{titlesec - parskip and title spacing conflict - \TeX{} - \LaTeX{} Stack Exchange}
+\end{itemize}
+
+を参考にしました。
+
+\begin{itemize}
+\item \href{https://github.com/FrankMittelbach/fmitex/tree/master/parskip}{fmitex/parskip at master · FrankMittelbach/fmitex · GitHub}
+\end{itemize}
+
+から、 \texttt{parskip} パッケージをいただいてきてください。
+次のようにすると、段落間にスペースがあきます。
+
+
+\begin{programlist}[label={orgced3eb7}]{latex}{: 段落のインデントをなくし、段落の間を空ける}% 段落のインデントをなくし、段落の間を空ける
+\usepackage[skip=1.2em]{parskip}
+\end{programlist}
+
+\subsection{uline-- を使っていろいろな下線をひく}
+\label{sec:orgf79fd95}
+\index{uline--.sty}
+
+\begin{itemize}
+\item \href{http://doratex.hatenablog.jp/entry/20171219/1513609345}{行分割可能な \texttt{\textbackslash{}fbox} をつくる - \TeX{} Alchemist Online}
+\end{itemize}
+
+を参考にしました。
+
+\texttt{uline-{}-.sty} を使います。
+標準パッケージではありません。
+
+\begin{itemize}
+\item \href{https://github.com/doraTeX/breakfbox}{GitHub - doraTeX/breakfbox}
+\end{itemize}
+
+からダウンロードしてください。
+
+\begin{programlist}[label={orgb7c9f45}]{latex}{: \texttt{uline-{}-.sty} を使う\texttt{uline-{}-.sty} を使う}\usepackage[usetype1]{uline--}
+\end{programlist}
+
+このパッケージを使うと次のようなことができます。
+
+\begin{programlist}[label={orgda4a9c6}]{latex}{: \texttt{uline-{}-.sty} の使用例}\uline{下線}、\mline{打消線}、\oline{上線}、
+\udash{下破線}、\mdash{打消破線}、\odash{上破線}
+\uwave{下波線}、\mwave{打消波線}、\owave{上波線}
+\uline[background,color={[rgb]{1,1,0.4}},width=0.5zw,position=1pt]{蛍光ペン}
+\uline[background,color={[rgb]{1,0.4,1}},width=1zw,position=.38zw]{塗り}、
+\end{programlist}
+
+\uline{下線}、\mline{打消線}、\oline{上線}、
+\udash{下破線}、\mdash{打消破線}、\odash{上破線}
+\uwave{下波線}、\mwave{打消波線}、\owave{上波線}
+\uline[background,color={[rgb]{1,1,0.4}},width=0.5zw,position=1pt]{蛍光ペン}
+\uline[background,color={[rgb]{1,0.4,1}},width=1zw,position=.38zw]{塗り}、
+
+*
+
+\subsection{文字の強調の変更}
+\label{sec:org38d91f5}
+最近の HTML でみかけるように、強調の文が
+蛍光マーカーで線を引かれたようにします。
+\LaTeX の \texttt{\textbackslash{}emph} コマンドを再定義します。
+
+\begin{description}
+\item[{日本語}] ゴシック太字
+\item[{欧文}] イタリック太字
+\item[{塗り}] 黄色で、文字の半分まで
+\end{description}
+
+というようになるように、 \texttt{emph} コマンドを変更します。
+
+\begin{programlist}[label={org8bbeb89}]{latex}{: \texttt{emph} コマンドの再定義}\usepackage[usetype1]{uline--}
+
+\renewcommand{\emph}[1]{%
+  {\sffamily\bfseries\itshape%
+    \uline[
+      background,
+      color={[rgb]{1,1,0.0}},
+      width=0.8em,position=1pt]{#1}}}
+\end{programlist}
+
+\emph{強調のテキストです。 This is an emph.}
+
+これを使うと、これは:
+\begin{programlist}[label={orga702aa1}]{text}{: 強調の例}/強調の行です。 This is emph/ 。うまくいくかな？
+\end{programlist}
+
+このように変換されます。
+
+\emph{強調の行です。 This is emph} 。うまくいくかな？
+
+\subsection{打ち消し線の定義}
+\label{sec:org989fcc8}
+\sout{\sout{Strike through}} の文字を出します。
+Org mode が打ち消し線に対して \texttt{sout} を
+使うので、 \texttt{sout} コマンドを定義します。
+
+\begin{programlist}[label={orge17aae9}]{latex}{: 打ち消し線の定義}\newcommand{\sout}[1]{\mline{#1}}
+\end{programlist}
+
+\section{レイアウトの変更}
+\label{sec:orgcd63d06}
+\index{geometry}
+\index{よはく@余白}
+
+ページの余白を次のように設定します。
+紙だとうまく印刷できないです。
+
+\begin{itemize}
+\item 左側余白 : 10mm
+\item 右側余白 : 10mm
+\item 上側余白 : 25mm
+\item 下側余白 : 25mm
+\end{itemize}
+
+になるように、余白を設定します
+余白を設定するには \texttt{geometry} スタイルを使用します。
+
+
+\begin{programlist}[label={org857b865}]{latex}{: 余白の設定}\usepackage[top=25truemm,bottom=25truemm,inner=10truemm,outer=10truemm]{geometry}
+\end{programlist}
+
+
+\section{目次の変更}
+\label{sec:org8d0ad94}
+目次の見栄えを変更します。
+
+\begin{itemize}
+\item \href{https://github.com/thortex/jlatex-man-lll-jou}{thortex/jlatex-man-lll-jou: Japanese \LaTeX{} manual: "Love Love \LaTeX{} for Beginners"}
+\end{itemize}
+
+を参考にしました。
+
+\subsection{主目次の変更}
+\label{sec:org1b822fc}
+主目次の見栄えを変更します。
+
+\begin{programlist}[label={org637f6df}]{latex}{: 主目次の変更}\renewcommand{\tableofcontents}{%
+  \if@twocolumn
+  \else
+    \@restonecolfalse
+  \fi
+  \chapter*{\contentsname%
+ 	\@mkboth{\contentsname}{\contentsname}%
+  	\pdfbookmark{\contentsname}{contents}}
+  \@starttoc{toc}%
+  \if@restonecol\twocolumn\fi
+}
+
+% 色の設定
+\def \@default@gray@level {.15}
+
+\renewcommand{\l@chapter}[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \addvspace{.5\cvs \@plus \p@ \@minus \p@}
+    \begingroup
+      \parindent = \z@ \relax
+      \rightskip = \@tocrmarg \relax
+      \parfillskip = -\rightskip \relax
+      \leavevmode \large \sffamily
+      \@lnumwidth = 4.683zw\relax
+      \advance \leftskip \@lnumwidth \hskip-\leftskip
+      \hb@xt@ \z@{\color[cmyk]{0,0,0,\@default@gray@level}%
+          \vrule \@height 1em \@width 3pt \@depth 1ex\hss}%
+      \hskip 6pt #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss#2}\par
+        {\color[cmyk]{0,0,0,\@default@gray@level}%
+          \hrule \@width \linewidth \@height 3pt}%
+      \par\nobreak\vskip6pt
+      \penalty\@highpenalty
+    \endgroup
+  \fi
+}
+
+
+% 目次のセクションレベルの変更
+\renewcommand{\l@section}[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \addvspace{.5\cvs \@plus \p@ \@minus \p@}
+    \begingroup
+      \parindent = \z@ \relax
+      \rightskip = \@tocrmarg \relax
+      \parfillskip = -\rightskip \relax
+      \leavevmode \normalsize \sffamily
+      \@lnumwidth = 4.683em\relax
+      \advance \leftskip \@lnumwidth \hskip-\leftskip
+      \hb@xt@ \z@{\color[cmyk]{0,0,0,\@default@gray@level}%
+          \vrule \@height 1em \@width 3pt \@depth 1ex\hss}%
+      \hskip 6pt #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss#2}\par
+        {\color[cmyk]{0,0,0,\@default@gray@level}%
+          \hrule \@width \linewidth \@height 0.5ex}%
+      \par\nobreak\vskip6pt
+      \penalty\@highpenalty
+    \endgroup
+  \fi
+}
+
+\renewcommand*{\l@subsection}{\@dottedtocline{1}{1em}{3em}}
+\renewcommand*{\l@subsubsection}{\@dottedtocline{2}{3em}{4em}}
+
+% 行の終わりまでドットを描く
+\def\@dottedtocline#1#2#3#4#5{\ifnum #1>\c@tocdepth \else
+  \vskip \z@ \@plus.2\p@
+  {%\ifnum#1=2\small\fi
+    \leftskip #2\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+    \parindent #2\relax\@afterindenttrue
+   \interlinepenalty\@M
+   \leavevmode
+   \@lnumwidth #3\relax
+   \advance\leftskip \@lnumwidth \null\nobreak\hskip -\leftskip
+    {#4}\nobreak
+    \leaders\hbox{$\m@th \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
+       mu$}\hfill \nobreak\hb@xt@\@pnumwidth{%
+         \hfil%\ifnum#1=2\normalsize\fi
+         \normalfont \normalcolor #5}\par}\fi}
+
+\end{programlist}
+\subsection{図目次の変更}
+\label{sec:org8b7dda2}
+図目次を変更します。
+
+\begin{programlist}[label={org2b8fb4a}]{latex}{: 図目次の変更}% 図目次の変更
+\renewcommand{\listoffigures}{%
+  \if@twocolumn\@restonecoltrue\onecolumn
+  \else\@restonecolfalse\fi
+  \section*{\listfigurename % \section* レベル
+    \@mkboth{\listfigurename}{\listfigurename}%
+      \pdfbookmark{\listfigurename}{listoffigures}}% append
+  \@starttoc{lof}%
+  \if@restonecol\twocolumn\fi
+}
+\end{programlist}
+
+\subsection{表目次の変更}
+\label{sec:orgbd26888}
+表目次を変更します。
+
+\begin{programlist}[label={orgaedc5e0}]{latex}{: 表目次の変更}% 表目次の変更
+\renewcommand{\listoftables}{%
+  \if@twocolumn\@restonecoltrue\onecolumn
+  \else\@restonecolfalse\fi
+  \section*{\listtablename % \section* レベル
+  \@mkboth{\listtablename}{\listtablename}%
+  \pdfbookmark{\listtablename}{listoftables}}% append
+  \@starttoc{lot}%
+  \if@restonecol\twocolumn\fi
+}
+\end{programlist}
+
+\section{ページのヘッダーとフッターの変更}
+\label{sec:org05e3472}
+ページのヘッダーとフッターを変更します。
+
+
+まず、
+
+\tcbox[colback=white,colframe=red,size=small,on line]{
+  \textcolor{red}{\sffamily \bfseries 部外秘}
+  }
+
+
+を入れる変数 \texttt{ConfidentialLevel} を定義します。
+
+\begin{programlist}[label={org22c8bfd}]{latex}{: ConfidentialLevel の定義}\global\let\@ConfidentialLevel\@empty
+\def\ConfidentialLevel#1{\gdef\@ConfidentialLevel{#1}}
+\end{programlist}
+
+プリアンブルの中で、次のように定義してください。
+
+\begin{exampleoutput}
+\ConfidentialLevel{部外秘}
+\end{exampleoutput}
+
+定義されていなければ出力されません。
+
+次に \texttt{fancyhdr} パッケージを使って、ヘッダーとフッターを変更します。
+
+\begin{programlist}[label={org35dc357}]{latex}{: ヘッダーとフッターの変更}\setlength{\footskip}{10truemm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\rightmark}{}
+\rhead{}{\leftmark}
+\rfoot{% フッター右側に「部外秘」を出力
+    \ifx\@ConfidentialLevel\@empty
+    \else
+      \tcbox[colback=white,colframe=red,size=small,on line]{
+        \textcolor{red}{\sffamily \bfseries {\@ConfidentialLevel}}
+    }\fi%
+  }
+\cfoot{\thepage}% フッター中央にページ番号を出力
+\end{programlist}
+
+\section{tcolorbox を使った綺麗な箱}
+\label{sec:org560ecba}
+tcolorbox パッケージを使うと、
+箱にはいった環境を比較的簡単に作ることができます
+tcolorbox のドキュメントを見るには次のコマンドを使用してください:
+いろいろな例がのっています（英文です）。
+
+\begin{exampleoutput}
+texdoc tcolorbox
+\end{exampleoutput}
+
+\subsection{tcolorbox の設定}
+\label{sec:orgf35c1ea}
+tcolorbox の設定です。
+
+\begin{programlist}[label={org5c2b036}]{latex}{: tcolorbox 設定}\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins,raster,listings}
+\tcbuselibrary{external}
+\tcbuselibrary{minted} % プログラムリスト用に minted を使う
+\tcbEXTERNALIZE
+\end{programlist}
+
+\subsection{pabox 環境}
+\label{sec:org948b3c9}
+タイトル, ラベル(オプション) つきのボックスです。
+
+\begin{programlist}[label={orgc6c39d6}]{latex}{: タイトル, ラベル(オプション) つきのボックス}\newtcolorbox[
+  auto counter,
+  number within=section]{pabox}[2][]{%
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries,
+  title=例~\thetcbcounter: #2,#1}
+\end{programlist}
+
+\subsection{marker 環境}
+\label{sec:orgc60bded}
+marker 環境です。 tcolorbox のマニュアルからとりました。
+
+\begin{programlist}[label={org491d65c}]{latex}{: maraker 環境}\newtcolorbox{marker}[1][]{enhanced,
+  before skip=2mm,
+  after skip=3mm,
+  boxrule=0.4pt,
+  left=5mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm,
+  colback=yellow!50,
+  colframe=yellow!20!black,
+  sharp corners,
+  rounded corners=southeast,
+  arc is angular,
+  arc=3mm,
+  underlay={%
+    \path[fill=tcbcol@back!80!black] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[draw=tcbcol@frame,shorten <=-0.05mm,shorten >=-0.05mm] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[fill=yellow!50!black,draw=none] (interior.south west) rectangle node[white]{\Huge\bfseries !} ([xshift=4mm]interior.north west);
+    },
+  drop fuzzy shadow,#1}
+\end{programlist}
+
+
+\subsection{programlist 環境}
+\label{sec:org09c6c15}
+プログラムリストを出力する環境です。
+
+\index{programlist}
+\begin{programlist}[label={orgd7e8ea1}]{latex}{: プログラムリスト用環境 \texttt{programlist}}\newtcblisting[
+  auto counter,
+  number within=section,
+  list inside=box]{programlist}[3][]{
+  listing engine=minted,% リスト環境は minted
+  minted style=monokai,% 使用するテーマ
+  minted language=#2, % 使用する言語
+  minted options={fontsize=\small,
+                  breaklines,% 途中で改行する
+                  breakanywhere},%
+  title={\sffamily\bfseries リスト \thetcbcounter #3},
+  #1,% ラベル
+  breakable,%
+  colback=black!90!white,
+  colupper=white,
+  colframe=blue!75!white,
+  listing only,%
+  left=0mm,
+  enhanced,%
+   }%
+\end{programlist}
+
+このようにして使います（Org-mode のマニュアルからの例）:
+
+\begin{exampleoutput}
+\begin{programlist}[label={prog-exam1}]{lisp}{: Emacs Lisp の例}(defun org-xor (a b)
+  "Exclusive or."
+  (if a (not b) b))
+\end{programlist}
+\end{exampleoutput}
+
+このように出力されます:
+
+\begin{programlist}[label={prog-exam1}]{lisp}{: Emacs Lisp の例}(defun org-xor (a b)
+  "Exclusive or."
+  (if a (not b) b))
+\end{programlist}
+
+\subsection{shellinput 環境}
+\label{sec:org2c7b41d}
+シェル入力用環境の環境です。
+
+\begin{programlist}[label={org83c5945}]{latex}{: シェル入力用環境}\newtcblisting{shellinput}[1][]{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+  title=#1,
+  listing only,
+  minted language=shell-session,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+\end{programlist}
+
+\subsection{shelloutput 環境}
+\label{sec:org0b23ace}
+シェル出力用環境です。
+
+\begin{programlist}[label={orge8e0987}]{latex}{: shelloutput 環境}\newtcblisting{shelloutput}[1][]{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+  title=#1,
+  listing only,
+  minted language=shell-session,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+\end{programlist}
+
+\subsection{例の出力}
+\label{sec:org795f86f}
+\begin{programlist}[label={org3bedbd1}]{latex}{: exampleoutput 環境}\newtcblisting{exampleoutput}{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+%  title=出力,
+  listing only,
+  minted language=text,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+\end{programlist}
+
+\subsection{リスト目次関係}
+\label{sec:org9934cdd}
+\begin{programlist}[label={orgafd07bd}]{latex}{: リスト目次の先頭に番号を出さない}\makeatletter
+\def\tcb@addcontentsline#1#2{%
+  \ifx\kvtcb@listentry\@empty%
+    \ifx\kvtcb@title\@empty%
+      \ifx\tcbtitletext\@empty%
+        \addcontentsline{#1}{#2}{{\ignorespaces\kvtcb@savedelimiter}}%
+      \else%
+        \addcontentsline{#1}{#2}{{\ignorespaces\tcbtitletext}}%
+      \fi%
+    \else%
+      \addcontentsline{#1}{#2}{{\ignorespaces\kvtcb@title}}%
+    \fi%
+  \else%
+    \addcontentsline{#1}{#2}{\kvtcb@listentry}%
+  \fi%
+}
+\makeatother
+\end{programlist}
+
+\subsection{プログラムリストのキャプションの変更}
+\label{sec:org9a2b606}
+\begin{programlist}[label={orgc24da93}]{latex}{: プログラムリストのキャプション}\renewcommand\listingscaption{プログラムコード}
+\end{programlist}
+
+\subsection{プログラムリストの目次のキャプションの変更}
+\label{sec:orgce4c783}
+\begin{programlist}[label={orga0fa272}]{latex}{: プログラムリストの目次のキャプション}\renewcommand\listoflistingscaption{プログラムコードのリスト}
+\end{programlist}
+
+
+
+
+
+\section{セクションの見出しの変更}
+\label{sec:org1b65439}
+デフォルトの jsbook の設定では見出しが
+あじけないので、変更します。
+
+fancydr の後で titlesec を読みこまないと、
+うまくいかないようです。
+
+\subsection{titlesec を使う}
+\label{sec:org5fecf51}
+見出しのみかけを変更するために \texttt{titlesec} パッケージを
+使います。
+
+\begin{programlist}[label={org533fbd6}]{latex}{: titlesec パッケージの読み込み}\usepackage{titlesec}
+% \usepackage{anyfontsize}
+% 章にも他と同じヘッダー、フッターのスタイルを適用する
+\assignpagestyle{\chapter}{fancy}
+\end{programlist}
+\subsection{titlesec の設定方法}
+\label{sec:org4d0f79f}
+\begin{itemize}
+\item \href{http://abenori.blogspot.com/2018/05/titlesec.html}{にっき♪: titlesec}
+\end{itemize}
+
+を参考にしました。
+
+\texttt{\textbackslash{}titleformat} コマンドの書式です:
+
+\begin{programlist}[label={org8b5228b}]{latex}{: \texttt{\textbackslash{}titleformat} の書式}\titleformat{<命令>}
+    [<特殊な形状の指定>]
+    {<書式>}
+    {<ラベル書式>}
+    {<ラベルと見出し文字列の間の空き>}
+    {<見出し文字列直前に入るコード>}
+    [<見出し直後に入るコード>]
+\end{programlist}
+
+\subsection{セクションの前で改ページを行なう}
+\label{sec:orgeb82236}
+セクションの前で改ページを行なう設定です。
+
+セクションの直前で改ページを行なうには
+次のようにします。
+
+\begin{programlist}[label={orga75d4e9}]{latex}{: セクションの直前で改ページを行なう}% セクションの前で改ページを行なう
+\newcommand{\sectionbreak}{\clearpage}
+\end{programlist}
+
+
+\subsection{章のスタイルの変更}
+\label{sec:orgb1f2af1}
+\begin{programlist}[label={org8751c06}]{latex}{: chapter のスタイルの変更}\titleformat{\chapter}
+[hang]
+{\LARGE\sffamily\bfseries}
+{\colorbox{blue}{\color{white}\thechapter}}
+{1zw}
+{}%
+[{\titlerule[1pt]}]
+
+\end{programlist}
+
+\subsection{section の見出しの変更}
+\label{sec:org7fc91e9}
+セクションのスタイルを変更します。
+
+\begin{programlist}[label={orgd9809eb}]{latex}{: section のスタイルの変更}\titleformat{\section}
+[hang]
+{\Large\sffamily\bfseries}
+{\colorbox{blue}{\color{white}\thesection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+\end{programlist}
+
+\subsection{section* の見出しの変更}
+\label{sec:org9f6d1bb}
+\begin{programlist}[label={orge19b485}]{latex}{: section* のスタイルの変更}\titleformat{name=\section,numberless}
+[hang]
+{\Large\sffamily\bfseries}
+{}{12pt}{}%
+[{\titlerule[0.5pt]}]
+\end{programlist}
+
+\subsection{subsection のスタイルの変更}
+\label{sec:org40c0e43}
+サブセクションのスタイルを変更します。
+
+\begin{programlist}[label={org1f97475}]{latex}{: subsection のスタイルの変更}\titleformat{\subsection}
+[hang]
+{\large\sffamily\bfseries}
+{\colorbox{teal}{\color{white}\thesubsection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+\end{programlist}
+
+\subsection{subsubsection のスタイルの変更}
+\label{sec:org83ca304}
+subsubsection スタイルを変更します。
+
+\subsection{paragraph のスタイルの変更}
+\label{sec:orgb735a89}
+paragraph のスタイルを変更します。
+
+\begin{programlist}[label={orge71014e}]{latex}{: subsubsection のスタイルの変更paragraph のスタイルの変更}\titleformat{\subsubsection}
+[hang]
+{\large\sffamily\bfseries}
+{\colorbox{darkslateblue}{\color{white}\thesubsubsection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+\end{programlist}
+
+
+
+\subsection{セクションの空きを設定する}
+\label{sec:orgff933b7}
+セクションの見出しの空きを設定します。
+
+書式は次のとおりです:
+
+\begin{programlist}[label={org2c6da87}]{latex}{: \texttt{titlespacing} の書式}\titlespacing*{\section}{左空き}{上空き}{下空き}
+\end{programlist}
+
+次のように設定しました。好みに合わせて
+変更してください。
+
+\begin{programlist}[label={org929ec22}]{latex}{: titlespacing によって見出しの空きを設定する}\titlespacing*{\section}{0em}{2em}{2em}
+\titlespacing*{\subsection}{0em}{2em}{2em}
+\titlespacing*{\subsubsection}{0em}{2em}{2em}
+\titlespacing*{\paragraph}{0em}{2em}{2em}
+\end{programlist}
+
+
+\section{表にストライプをつける}
+\label{sec:org94ffcfa}
+表にストライプをつけます。
+
+\begin{itemize}
+\item \href{https://tex.stackexchange.com/questions/61747/how-to-apply-alternate-row-coloring-in-a-longtable-in-lyx}{color - How to apply alternate row coloring in a longtable in LyX? - \TeX{} - \LaTeX{} Stack Exchange}
+\end{itemize}
+
+を参考にしました。
+
+
+\begin{programlist}[label={org460ddb4}]{latex}{: 表にストライプをつける}% define lightgray
+\definecolor{lightgray}{gray}{0.9}
+
+% alternate rowcolors for all tables
+\let\oldtabular\tabular
+\let\endoldtabular\endtabular
+\renewenvironment{tabular}{\rowcolors{2}{white}{lightgray}\oldtabular}{\endoldtabular}
+\end{programlist}
+
+このような表が出力できます:
+
+\begin{table}[htbp]
+\caption{表のテスト}
+\centering
+\begin{tabular}{ll}
+コード & 表示\\
+\hline
+\texttt{\textbackslash{}alpha} & \(\alpha\)\\
+\texttt{\textbackslash{}beta} & \(\beta\)\\
+\texttt{\textbackslash{}gamma} & \(\gamma\)\\
+\texttt{\textbackslash{}delta} & \(\delta\)\\
+\hline
+\end{tabular}
+\end{table}
+
+\section{箇条書きの変更}
+\label{sec:org18a445e}
+標準の箇条書きの不満な点です:
+
+\begin{itemize}
+\item 箇条書きのネストが 4 つまで
+\item ちょっと見た目がかっこう悪い。
+\end{itemize}
+
+箇条書きを変更するため、 \texttt{enumitem} パッケージを使用します。
+
+\begin{programlist}[label={org2081401}]{latex}{: \texttt{enumitem} パッケージの使用}\usepackage{enumitem}
+\end{programlist}
+
+
+\subsection{箇条書きネストのレベルの設定}
+\label{sec:orgab4490b}
+\LaTeX はデフォルトで 4 つのレベルの箇条書きのネストを
+サポートしています。しかしそれでは足りないことがあるので、
+そのネストのレベルを深くします。
+
+\begin{programlist}[label={org7a11307}]{latex}{: 箇条書きのネストのレベルを深くする}\setlistdepth{20}
+\end{programlist}
+
+\subsection{itemize の再定義}
+\label{sec:org1c24aa7}
+itemize 環境を再定義します。
+
+\begin{programlist}[label={org4cc5d20}]{latex}{: itemize の再定義}\renewlist{itemize}{itemize}{20}
+\setlist[itemize]{
+  label=\textbullet, 
+  partopsep=0em,
+  parsep=0.3em,
+  labelindent=2em,
+  leftmargin=2em}
+\end{programlist}
+
+例です。この Org mode の箇条書きは:
+
+\begin{programlist}[label={orgbd2fa0b}]{text}{: Org mode itemize の例}- レベル1
+  - レベル2
+    - レベル3
+      - レベル4
+        - レベル5
+- レベル1
+  - レベル2
+    - レベル3
+      - レベル4
+        - レベル5
+\end{programlist}
+
+このように変換されます:
+
+\begin{itemize}
+\item レベル1
+\begin{itemize}
+\item レベル2
+\begin{itemize}
+\item レベル3
+\begin{itemize}
+\item レベル4
+\begin{itemize}
+\item レベル5
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\item レベル1
+\begin{itemize}
+\item レベル2
+\begin{itemize}
+\item レベル3
+\begin{itemize}
+\item レベル4
+\begin{itemize}
+\item レベル5
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\subsection{enumerate の再定義}
+\label{sec:orgddf24a6}
+enumerate 環境を再定義します。
+
+\begin{programlist}[label={org5f332ba}]{latex}{: enumerate の再定義}\renewlist{enumerate}{enumerate}{20}
+  \setlist[enumerate]{
+    leftmargin=!, 
+    font=\sffamily\bfseries,
+    label*=\arabic*.,% ラベルを 1., 1.1. 1.1.1 に
+%    label=\arabic*, 
+    itemindent=!, 
+    topsep=0.3em,
+    partopsep=0.3em,
+    parsep=0.3em,
+    labelsep=!, 
+    labelwidth=!, 
+    labelindent=2em}
+\end{programlist}
+
+これは
+
+\begin{programlist}[label={org5c60f0e}]{text}{: Org mode での順序つきリストアイテム}1. レベル 1
+   1. レベル 2
+      1. レベル 3
+         1. レベル 4
+            1. レベル 5
+2. レベル 1
+   1. レベル 2
+      1. レベル 3
+         1. レベル 4
+            1. レベル 5
+\end{programlist}
+
+このように変換されます:
+
+
+\begin{enumerate}
+\item レベル 1
+\begin{enumerate}
+\item レベル 2
+\begin{enumerate}
+\item レベル 3
+\begin{enumerate}
+\item レベル 4
+\begin{enumerate}
+\item レベル 5
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+\item レベル 1
+\begin{enumerate}
+\item レベル 2
+\begin{enumerate}
+\item レベル 3
+\begin{enumerate}
+\item レベル 4
+\begin{enumerate}
+\item レベル 5
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+
+\subsection{desctiption の再定義}
+\label{sec:orge9f0540}
+\texttt{desctiption} 環境を再定義します。
+
+\begin{programlist}[label={orgcd9f0fa}]{latex}{: desctiption の再定義}\renewlist{description}{description}{20}
+\setlist[description]{
+  font=\sffamily\bfseries, 
+  style=nextline,
+  labelindent=2em,% ラベルのインデント量
+  }
+\end{programlist}
+これは
+
+\begin{programlist}[label={orga079881}]{text}{: Org mode での説明つきリスト}- 用語1 :: 用語の説明1。
+- 用語2 :: 用語の説明2。長くなるとどうなるだろうか？ うまくいくかな？
+         ちゃんと複数行に行くかな。
+- とってもとってもとっても長い用語 :: 
+     用語の説明2。長くなるとどうなるだろうか？ うまくいくかな？
+     ちゃんと複数行に行くかな。
+\end{programlist}
+
+このように変換されます:
+
+
+\begin{description}
+\item[{用語1}] 用語の説明1。
+\item[{用語2}] 用語の説明2。長くなるとどうなるだろうか？ 
+うまくいくかな？
+ちゃんと複数行に行くかな。
+\item[{とってもとってもとっても長い用語}] 用語の説明2。長くなるとどうなるだろうか？ 
+うまくいくかな？
+ちゃんと複数行に行くかな。
+\end{description}
+
+\section{数式}
+\label{sec:org5d54d3d}
+とっても一般的な数式の設定です。
+
+\begin{programlist}[label={org6cdec55}]{latex}{: AMSMath を使う}\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\end{programlist}
+
+Org mode の中で次のように書くと:
+
+\begin{programlist}[label={orgfba8895}]{text}{: Org mode での数式の例1}\begin{equation}
+  A = \begin{pmatrix}
+        a_{11} & \ldots & a_{1n} \\
+        \vdots & \ddots & \vdots \\
+        a_{m1} & \ldots & a_{mn}
+      \end{pmatrix}
+\end{equation}
+\end{programlist}
+
+このような数式が出力されます:
+
+\begin{equation}
+  A = \begin{pmatrix}
+        a_{11} & \ldots & a_{1n} \\
+        \vdots & \ddots & \vdots \\
+        a_{m1} & \ldots & a_{mn}
+      \end{pmatrix}
+\end{equation}
+
+
+\begin{equation}
+    y = \sin x  \label{eq:1}
+\end{equation}
+
+\begin{equation}
+    y = \cos x  \label{eq:2}
+\end{equation}
+
+\begin{equation}
+    \left.
+    \begin{aligned}
+        u_t + (u \cdot \nabla)u + \nabla p &= f \\
+        \operatorname{div} u               &= 0
+    \end{aligned}
+    \right\} 
+    \quad \text{Euler equation}
+\end{equation}
+
+
+\section{hyperref 設定}
+\label{sec:orgac2b84b}
+hyperref 関連の設定です。
+
+\subsection{hyperref を使う}
+\label{sec:orgeb3314e}
+hyperref を使う設定です。
+デバイスドライバはドキュメントクラスのオプションで設定してください。
+
+\begin{programlist}[label={org29a0374}]{latex}{: hyperref を読み込む}\usepackage{hyperref}
+\end{programlist}
+
+\subsection{PDF のしおりの文字化けを防ぐ}
+\label{sec:org51e5d3a}
+PDF のしおりの文字化けを防ぐための設定です。
+
+\begin{programlist}[label={org49a2d94}]{latex}{: PDF の文字化けを防ぐ}\usepackage{pxjahyper}
+\end{programlist}
+
+
+Org mode のファイルのどこかに次の行を書いておくと、
+PDF のキーワードが設定されます。
+
+\begin{programlist}[label={orgf49c734}]{text}{: PDF 用キーワードの設定}#+KEYWORDS:  upLaTeX tcolorbox
+\end{programlist}
+
+\section{索引の作成}
+\label{sec:orga9cb3f6}
+\index{makeindex}
+\index{makeidx}
+
+索引を出力するには \texttt{makeidx} パッケージを使います。
+
+\begin{programlist}[label={org1efb57e}]{latex}{: 索引出力用のパッケージの読みこみ}\usepackage{makeidx}
+\end{programlist}
+
+そして次に、 \texttt{makeindex} コマンドを使って索引を作成します。
+
+\begin{programlist}[label={org7476924}]{latex}{: 索引作成}\makeindex
+\end{programlist}
+
+
+\section{タイトルページの変更}
+\label{sec:org90d55c1}
+タイトルページを変更します。
+
+\begin{itemize}
+\item \href{https://github.com/thortex/jlatex-man-lll-jou}{thortex/jlatex-man-lll-jou: Japanese \LaTeX{} manual: "Love Love \LaTeX{} for Beginners"}
+\end{itemize}
+
+を参考にしました。
+
+まず、タイトルページにのせる情報を定義します。
+プリアンブルの中で定義されていなかったら、これらは出力されません。
+
+\begin{itemize}
+\item FileVersion : ファイルのバージョンです
+\item FileVersion : コピーライトを所有する著者名です
+\item CopyrightYear : コピーライトが発生した年です
+\item TitlePicture : タイトルページにのせる画像です
+\item ContactInfo : コンタクト情報
+\end{itemize}
+
+
+
+\begin{programlist}[label={nil}]{latex}{: }\FileVersion{1.0}
+\CopyrightAuthor{島野善雄}
+\CopyrightYear{2019}
+\ConfidentialLevel{機密情報}
+\end{programlist}
+
+
+
+
+\begin{programlist}[label={org8967e71}]{latex}{: タイトルページにのせる情報の定義}% ファイルのバージョン
+\global\let\@FileVersion\@empty
+\def\FileVersion#1{\gdef\@FileVersion{#1}}
+
+% コピーライト所有者
+\global\let\@CopyrightAuthor\@empty
+\def\CopyrightAuthor#1{\gdef\@CopyrightAuthor{#1}}
+
+% コピーライトが発生した年
+\global\let\@CopyrightYear\@empty
+\def\CopyrightYear#1{\gdef\@CopyrightYear{#1}}
+
+% タイトルにのせる画像
+\global\let\@TitlePicture\@empty
+\def\TitlePicture#1{\gdef\@TitlePicture{#1}}
+
+% コンタクト情報
+\global\let\@ContactInfo\@empty
+\def\ContactInfo#1{\gdef\@contact{#1}}
+% \global\let\@version\@empty
+\end{programlist}
+
+次にタイトルページを定義します。
+
+\begin{programlist}[label={org46975ed}]{latex}{: タイトルページの変更}% 表紙ページのスタイルの変更
+\renewcommand{\maketitle}{%
+  % 表紙を PDF の目次にいれる
+  \pdfbookmark{表紙}{titlepage}% PDF のしおりに表紙をのせる
+  \begin{titlepage}%
+    \parindent=0pt%
+    \let\footnotesize\small%
+    \let\footnoterule\relax%
+    \let\footnote\thanks%
+    \null\vskip3em%
+    % タイトル
+    \hbox to \fullwidth{%
+      \huge\sffamily\bfseries\@title\hfill}
+      \par\vskip\fboxsep
+    \hrule height 0.5ex\par\vskip\fboxsep
+    % 著者名
+    \hbox to \fullwidth{{\large\@author}\hfill}\par
+    % ファイルのバージョン
+    \ifx\@FileVersion\@empty
+    \else
+      \hbox to \fullwidth{
+         {\large Version: {\@FileVersion}}
+      \hfill}\par
+    \fi
+    % 日付
+    \hbox to \fullwidth{{\large\@date}\hfill}\par
+    % 機密情報のレベル表示
+    \ifx\@ConfidentialLevel\@empty
+    \else
+    \tcbox[colback=white,colframe=red,size=small,on line]{
+      \textcolor{red}{\sffamily \bfseries {\@ConfidentialLevel}}
+    }\fi%
+    % 画像の挿入
+    \ifx\@TitlePicture\@empty
+    \else
+      \vfill
+      \hrule \@height .8pt \@width \fullwidth
+      \vskip.5\cvs
+      \hb@xt@ \fullwidth {
+        \hfil
+        \includegraphics[width=.9\linewidth]{\@TitlePicture}
+        \hfil}\par
+      \vskip.5\cvs
+      \hrule \@height .8pt \@width \fullwidth
+    \fi
+    \vfill
+    % コンタクト情報
+    \ifx\@ContactInfo\@empty
+       \@thanks\vfil\null%
+    \else
+       \vfill\@contact\vskip 3ex
+    \fi%
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+  \thispagestyle{empty}
+  \vspace*{\fill}
+  % コピーライト情報
+  {\hfil Copyright 
+   {\textcopyright} 
+    \space 
+    % コピーライトが発生した年
+    \ifx\@CopyrightYear\@empty
+       \the\year
+    \else
+       \@CopyrightYear
+    \fi
+    \space 
+    \ifx\@CopyrightAuthor\@empty
+      \@author
+    \else
+      \@CopyrightAuthor\hfil
+    \fi
+  }\\
+  \begin{quotation}
+  \end{quotation}
+  \begin{quotation}
+    本文章に記載されている企業，団体の名前や製品名等は
+    それぞれの権利帰属者の商標または商標登録であり所有物です．
+    本文章では{\texttrademark}及び{\textregistered}は明記し
+    ていません．
+  \end{quotation}}%
+\end{programlist}
+
+
+\chapter{latexmk によるコンパイルの自動化}
+\label{sec:org5fe1745}
+\index{.latexmkrc}
+\index{latexmk}
+
+latexmk を使うと、面倒な \LaTeX ファイルの
+コンパイルを自動化してくれます。
+
+\section{\texttt{.latexmkrc} の書きかたの例}
+\label{sec:org5dc7131}
+\index{.latexmkrc}
+\index{uplatex}
+\index{upmendex}
+
+\texttt{.latexmkrc} の例です。
+
+\begin{programlist}[label={org15d9ee5}]{perl}{: \texttt{.latexmkrc} の例}# LaTeX コマンドの設定
+$latex  = 'uplatex -src-specials -shell-escape -synctex=1 -interaction=nonstopmode';
+
+# BibTeX コンパイラ
+$bibtex = 'upbibtex';
+# $bibtex = 'biber';
+
+$dvipdf  = 'dvipdfmx %O -o %D %S';
+
+$makeindex  = 'upmendex -U -r -c -g -d ~/texmf/makeindex/dict/main.dict -s ~/texmf/makeindex/ist/dot.ist -p any';
+
+$pdf_previewer = 'xdg-open %O %S';
+
+# 最大の繰り返し回数
+$max_repeat       = 5;
+
+# 0：pdf化しない場合
+# 1：pdflatexを使う場合
+# 2：ps2pdfを使う場合
+# 3：dviファイルからpdfを作成する場合
+$pdf_mode = 3;
+
+$pdf_update_method = 0;
+
+\end{programlist}
+
+\section{latexmk の使い方}
+\label{sec:org529cdbe}
+\begin{exampleoutput}
+latexmk foge.tex
+\end{exampleoutput}
+
+
+\appendix
+
+
+\chapter{Org-mode から使う}
+\label{sec:org761f4b1}
+この文書自体が例です。
+
+\section{Org-mode のヘッダー設定}
+\label{sec:orgeb5eefc}
+
+\section{プログラムリストの出力環境を変更する}
+\label{sec:org5b0f1c7}
+プログラムリストの出力環境を、  \texttt{programlist} 環境に変更します。
+
+\begin{exampleoutput}
+(setq org-latex-custom-lang-environmentsll
+'(
+(c "\\begin{programlist}[label={%l}]{c}{: %c}%s\\end{programlist}")
+(ditaa "\\begin{programlist}[label={%l}]{text}{: %c}%s\\end{programlist}")
+(emacs-lisp "\\begin{programlist}[label={%l}]{lisp}{: %c}%s\\end{programlist}")
+(ruby "\\begin{programlist}[label={%l}]{ruby}{: %c}%s\\end{programlist}")
+(latex "\\begin{programlist}[label={%l}]{latex}{: %c}%s\\end{programlist}")
+(lua "\\begin{programlist}[label={%l}]{lua}{: %c}%s\\end{programlist}")
+(java "\\begin{programlist}[label={%l}]{java}{: %c}%s\\end{programlist}")
+(javascript "\\begin{programlist}[label={%l}]{javascript}{: %c}%s\\end{programlist}")
+(json "\\begin{programlist}[label={%l}]{json}{: %c}%s\\end{programlist}")
+(plantuml "\\begin{programlist}[label={%l}]{text}{: %c}%s\\end{programlist}")
+(maxima "\\begin{programlist}[label={%l}]{text}{: %c}%s\\end{programlist}")
+(ipython "\\begin{programlist}[label={%l}]{python}{: %c}%s\\end{programlist}")
+(python "\\begin{programlist}[label={%l}]{python}{: %c}%s\\end{programlist}")
+(html "\\begin{programlist}[label={%l}]{html}{: %c}%s\\end{programlist}")
+(org "\\begin{programlist}[label={%l}]{text}{: %c}%s\\end{programlist}")
+(typescript "\\begin{programlist}[label={%l}]{typescript}{: %c}%s\\end{programlist}")
+(scss "\\begin{programlist}[label={%l}]{scss}{: %c}%s\\end{programlist}")
+(sh "\\begin{programlist}[label={%l}]{shell}{: %c}%s\\end{programlist}")
+(shellinput "\\begin{shellinput}[%c]%s\\end{shellinput}")
+(shelloutput "\\begin{shelloutput}[%c]%s\\end{shelloutput}")
+))
+\end{exampleoutput}
+
+
+
+
+
+
+\chapter{ライセンス}
+\label{sec:orgdef6a27}
+MIT。
+
+
+\listoffigures
+\listoftables
+
+\tcblistof[\section*]{box}{プログラムリスト}
+
+\printindex
+\end{document}

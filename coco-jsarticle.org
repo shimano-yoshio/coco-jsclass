@@ -1,0 +1,1475 @@
+#+TITLE: jsarticle 用カスタムパッケージ
+#+LANGUAGE: ja
+#+AUTHOR: 島野 善雄
+#+EMAIL: shimano.yoshio@jp.fujitsu.com
+#+OPTIONS: author:t prop:nil <:nil H:7
+#+OPTIONS: toc:4 creator:nil timestamp:nil email:t  todo:nil pri:nil tags:nil
+#+DESCRIPTION: LaTeX Tips
+#+KEYWORDS:  Linux LaTeX
+#+EXCLUDE_TAGS: noexport
+#+STARTUP: indent
+
+# ドキュメントクラスの指定
+#+LATEX_CLASS: jsarticle
+# #+LATEX_CLASS: jsbook
+# ドキュメントクラスのオプションの指定
+# #+LATEX_CLASS_OPTIONS: [dvipdfmx,a4j,14pt,openany,uplatex]
+#+LATEX_CLASS_OPTIONS: [dvipdfmx,a4j,14pt,uplatex]
+
+# カスタムスタイルの読み込み
+#+LATEX_HEADER: \usepackage{coco-jsarticle}
+
+# ファイルのバージョン
+# #+LATEX_HEADER: \FileVersion{1.0}
+# #+LATEX_HEADER: \CopyrightAuthor{島野善雄}
+# #+LATEX_HEADER: \CopyrightYear{2019}
+#+LATEX_HEADER: \ConfidentialLevel{部外秘}
+#+LATEX: \color{Black!95!White}
+* このパッケージについて
+:PROPERTIES:
+:ID:       30af1ea2-2221-44c9-9dc5-35dc6c24a408
+:END:
+#+index: LaTeX
+
+** 動機
+:PROPERTIES:
+:ID:       9e3d4221-47fc-4a3a-a0f9-a6df1447714b
+:END:
+
+** 確認環境
+:PROPERTIES:
+:ID:       fab151a2-ab45-4f99-88c0-624470f819c6
+:END:
+
+- OS :: Ubuntu 18.10
+- TeX 環境: Texlive 2018
+
+** 謝辞
+:PROPERTIES:
+:ID:       a7808ebf-1085-47ef-bf74-4774befc9086
+:END:
+
+このパッケージを作るにあたり、インターネット上の
+たくさんの方々の情報を活用させていただきました。
+深く感謝いたします。
+
+* パッケージの実装
+:PROPERTIES:
+:ID:       6221c923-9f0a-4e7b-a6c2-c02c8ca38f4b
+:END:
+
+このセクションでは実際のパッケージの実装を説明します。
+
+** パッケージ宣言
+:PROPERTIES:
+:ID:       0e3c8e0f-1be1-469e-9d8c-cfb622cf0838
+:END:
+
+まず、パッケージを宣言します。
+
+#+caption: パッケージ宣言
+#+name: declare-package
+#+begin_src latex :eval no :tangle coco-jsarticle.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{coco-jsarticle}
+   [2019/02/29 v1.0 Yoshio Shimano]
+\def\FileVerjou#1{\gdef\@FileVerjou{#1}}
+#+end_src
+
+各行の意味は次のとおりです:
+
+- =\NeedsTeXFormat{LaTeX2e}= :: 使用するバージョンを指定します。
+- =\ProvidesPackage{coco-jsarticle}= ::
+     提供するパッケージ名を定義します。
+- =[2019/02/29 v1.0 Yoshio Shimano]= ::
+     このパッケージのバージョン情報です。
+     =2019/02/29= はこの書式でなければなりません。
+
+** 図関係の設定
+:PROPERTIES:
+:ID:       95ce24eb-5f6d-40d4-a54d-47c4eaf11ce6
+:END:
+
+*** 図をとりこむ
+:PROPERTIES:
+:ID:       959f80a9-f37a-4683-9843-3c18a1205d27
+:END:
+
+図を取り込むために、定番の =graphicx= パッケージを使います
+
+#+name: use-graphicx
+#+caption: graphicx パッケージを使う
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage{graphicx}
+#+end_src
+
+*** fcolorbox の説明
+:PROPERTIES:
+:ID:       d2a55b87-bd5f-49b1-bba1-4b2952f26903
+:END:
+
+
+#+begin_src latex :tangle coco-jsarticle.sty
+\fboxsep=0.5em
+\fboxrule=0pt
+#+end_src
+
+*** 色を使う
+:PROPERTIES:
+:ID:       84ed3e85-ac26-455d-98a6-a1570d72552d
+:END:
+
+色を使うために、 =xcolor= を使っています。
+
+#+name: use-xcolor
+#+caption: xcolor を使う
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage[usenames,divpsnames,svgnames,table,hyperref]{xcolor}
+#+end_src
+
+*** 色を定義する
+:PROPERTIES:
+:ID:       04f1e70a-9e84-416d-a325-d96fc992cf39
+:END:
+
+Bootstrap の色を定義します。
+Bootstrap で使われている色は次のとおりです:
+
+#+caption: bootstrap の色定義
+#+name: color-name-in-bootstrap
+|----+----------------+----------|
+|    | クラス名       | 色コード |
+|----+----------------+----------|
+|  1 | text-primary   | #007BFF  |
+|  2 | text-secondary | #6C757D  |
+|  3 | text-success   | #28A745  |
+|  4 | text-info      | #17A2B8  |
+|  5 | text-warning   | #FFC107  |
+|  6 | text-danger    | #DC3545  |
+|  7 | text-dark      | #343A40  |
+|  8 | text-muted     | #6C757D  |
+|  9 | text-light     | #F8F9FA  |
+| 10 | text-white     | #FFFFFF  |
+|----+----------------+----------|
+
+#+begin_src latex :tangle coco-jsarticle.sty
+  % 色の定義
+  \definecolor{text-primary}{HTML}{007BFF}
+  \definecolor{text-secondary}{HTML}{6C757D}
+  \definecolor{text-success}{HTML}{28A745}
+  \definecolor{text-info}{HTML}{17A2B8}
+  \definecolor{text-warning}{HTML}{FFC107} 
+  \definecolor{text-danger}{HTML}{DC3545}
+  \definecolor{text-dark}{HTML}{343A40}
+  \definecolor{text-muted}{HTML}{6C757D}
+  \definecolor{text-light}{HTML}{F8F9FA}
+  \definecolor{text-white}{HTML}{FFFFFF}
+    
+  \definecolor{teal}{RGB}{0,128,128}
+  \definecolor{powderblue}{RGB}{176,224,230}
+  \definecolor{darkslateblue}{RGB}{72,61,139}
+  \definecolor{darkslategray}{RGB}{47,79,79}
+  \definecolor{lightcyan}{RGB}{224,255,255}
+#+end_src
+
+
+-	text-primary --- \colorbox{text-primary}{text-primary}
+-	text-secondary--- \colorbox{text-secondary}{text-secondary}
+-	text-success--- \colorbox{text-success}{text-success}
+-	text-info--- \colorbox{text-info}{text-info}
+-	text-warning--- \colorbox{text-warning}{text-warning}
+-	text-danger--- \colorbox{text-danger}{text-danger}
+-	text-dark --- \colorbox{text-dark}{text-dark}
+-	text-muted--- \colorbox{text-muted}{text-muted}
+-	text-light--- \colorbox{text-light}{text-light}
+-	text-white--- \colorbox{text-white}{text-white}
+- teal        --- \colorbox{teal}{teal}
+- powderblue  --- \colorbox{powderblue}{powderblue}
+- darkslateblue  --- \colorbox{darkslateblue}{darkslateblue}
+- darkslategray  --- \colorbox{darkslategray}{darkslategray}
+- lightcyan  --- \colorbox{lightcyan}{lightcyan}
+
+*** tikz 設定
+:PROPERTIES:
+:ID:       b0a5ffe4-477d-46f9-a267-f654a109bec0
+:END:
+
+
+tikz 設定 の設定です。後述の tcolorbox のために
+使っています。
+
+#+name: tikz-setup
+#+caption: tikz 設定
+#+begin_src latex :tangle coco-jsarticle.sty
+% tikz を使う
+\usepackage{tikz}
+\usetikzlibrary{shadings,shadows}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{patterns}
+\usetikzlibrary{spy}
+\usetikzlibrary{arrows.meta}
+#+end_src
+
+** フォントの設定
+:PROPERTIES:
+   :ID:       5323b395-3681-485a-bb98-2608d1b0b88a
+   :END:
+
+文書で使うフォントの設定を行ないます。
+
+*** 欧文フォントの設定
+:PROPERTIES:
+    :ID:       f949c5c2-6ce9-4ae3-9d47-703854b8feab
+    :END:
+
+
+欧文フォントを使う設定です。
+
+欧文フォントには、 Latin Modern を使っています。
+
+#+name: use-font-related-packages
+#+caption: 欧文フォントに必用なパッケージ
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[lmr]{mathcomp}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern} % Latin Modern を使う
+#+end_src
+*** 数式フォントの設定
+:PROPERTIES:
+    :ID:       c5e3c14f-6bf5-42fa-89f6-eddbe5bceb49
+    :END:
+
+『数学ガール』のファンなので、
+数式用フォントには =eulervm= を使います。
+
+#+name: set-math-font
+#+caption: 数式フォントの設定
+#+begin_src latex :tangle coco-jsarticle.sty
+% 数式フォント
+% \usepackage{mathpazo}
+\usepackage{eulervm}
+% \usepackage{newpxtext,newpxmath}
+#+end_src
+
+*** 和文フォントの設定
+:PROPERTIES:
+    :ID:       cb737633-8ec2-4f4c-8447-8389dd10b8d0
+    :END:
+
+和文フォントは OTF パッケージを使っています。
+
+こんな文字が出したいです。
+
+- 白鴎と白鷗
+- 「吉野家」と「𠮷野家」
+- 森鷗外と内田百閒とが髙島屋に行くところを想像した。
+- 葛飾区の𠮷野家
+- Macintosh用キーボードの⌘(Command key)を押す。
+- ♲ を心がけよう。
+
+#+name: otf-package-settings
+#+caption: otf パッケージ
+#+begin_src latex :eval no :tangle coco-jsarticle.sty
+\usepackage[uplatex,jis2004,expert,deluxe]{otf}
+#+end_src
+
+- uplatex :: upLaTeX を使います。
+- jis2004 :: 可能であれば、jis2004 の文字を使います。
+- expert  :: 横書きと縦書きで違う文字を使います。
+- deluxe  :: 書体がたくさん使えるようになります。
+
+** 背景色の変更
+:PROPERTIES:
+:ID:       950882d5-9d0e-4335-a926-214a1961ab19
+:END:
+
+ページの背景色をちょっとだけ白くします。
+
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage[pagecolor={White!95!Black}]{pagecolor}
+#+end_src
+
+** テキストの調整
+:PROPERTIES:
+:ID:       f25cb0b2-1a26-47aa-a6e6-574869146ab8
+:END:
+
+*** テキストをページ一杯にひろげる
+:PROPERTIES:
+:ID:       372c9198-5a7e-4869-9b04-59d55d51d04a
+:END:
+
+テキストをページ一杯に拡げます。
+jsarticle では効果はないかもしれません。
+
+#+name: spred-text-to-full-page
+#+caption: テキストをページ一杯に拡げる
+#+begin_src latex :tangle coco-jsarticle.sty
+\setlength{\textwidth}{\fullwidth}
+#+end_src
+
+*** 行間の変更
+:PROPERTIES:
+:ID:       0b28d31a-a946-42eb-9ef4-16f9336c1412
+:END:
+
+行間を拡げます。
+
+行間を調節します。
+広いほうが好みなので、全角の高さ（=zh=）の 0.8 倍にしています。
+
+#+caption: 行間の設定
+#+name: space-between-lines
+#+begin_src latex :tangle coco-jsarticle.sty
+  % 行間の設定
+  \setlength{\baselineskip}{0.8 ex}
+#+end_src
+
+*** 段落の調整
+:PROPERTIES:
+:ID:       4a771185-d8c6-47c4-b394-cd97f85b587b
+:END:
+
+段落の先頭にあるインデントをなくし、
+段落間の空きをふやします。
+
+- [[https://tex.stackexchange.com/questions/358588/parskip-and-title-spacing-conflict][titlesec - parskip and title spacing conflict - TeX - LaTeX Stack Exchange]]
+
+を参考にしました。
+
+- [[https://github.com/FrankMittelbach/fmitex/tree/master/parskip][fmitex/parskip at master · FrankMittelbach/fmitex · GitHub]]
+
+から、 =parskip= パッケージをいただいてきてください。
+次のようにすると、段落間にスペースがあきます。
+
+
+#+name: set-spacing-between-paragraph
+#+caption: 段落のインデントをなくし、段落の間を空ける
+#+begin_src latex :tangle coco-jsarticle.sty
+% 段落のインデントをなくし、段落の間を空ける
+\usepackage[skip=1.2em]{parskip}
+#+end_src
+
+*** uline-- を使っていろいろな下線をひく
+:PROPERTIES:
+:ID:       387b8ee0-07f2-48de-b2b2-82d94419abb2
+:END:
+#+INDEX: uline--.sty
+
+- [[http://doratex.hatenablog.jp/entry/20171219/1513609345][行分割可能な =\fbox= をつくる - TeX Alchemist Online]]
+
+を参考にしました。
+
+~uline--.sty~ を使います。
+標準パッケージではありません。
+
+- [[https://github.com/doraTeX/breakfbox][GitHub - doraTeX/breakfbox]]
+
+からダウンロードしてください。
+
+#+caption: ~uline--.sty~ を使う
+#+name: using-uliln-style
+#+caption: ~uline--.sty~ を使う
+#+begin_src latex :eval no :tangle coco-jsarticle.sty
+\usepackage[usetype1]{uline--}
+#+end_src
+
+このパッケージを使うと次のようなことができます。
+
+#+name: example-of-uline--
+#+caption: ~uline--.sty~ の使用例
+#+begin_src latex
+\uline{下線}、\mline{打消線}、\oline{上線}、
+\udash{下破線}、\mdash{打消破線}、\odash{上破線}
+\uwave{下波線}、\mwave{打消波線}、\owave{上波線}
+\uline[background,color={[rgb]{1,1,0.4}},width=0.5zw,position=1pt]{蛍光ペン}
+\uline[background,color={[rgb]{1,0.4,1}},width=1zw,position=.38zw]{塗り}、
+#+end_src
+
+#+begin_export latex
+\uline{下線}、\mline{打消線}、\oline{上線}、
+\udash{下破線}、\mdash{打消破線}、\odash{上破線}
+\uwave{下波線}、\mwave{打消波線}、\owave{上波線}
+\uline[background,color={[rgb]{1,1,0.4}},width=0.5zw,position=1pt]{蛍光ペン}
+\uline[background,color={[rgb]{1,0.4,1}},width=1zw,position=.38zw]{塗り}、
+#+end_export
+
+*
+
+*** 文字の強調の変更
+:PROPERTIES:
+:ID:       aacc1d34-d154-46de-ba10-a87561f5b3c1
+:END:
+
+最近の HTML でみかけるように、強調の文が
+蛍光マーカーで線を引かれたようにします。
+\LaTeX の =\emph= コマンドを再定義します。
+
+- 日本語 :: ゴシック太字
+- 欧文 :: イタリック太字
+- 塗り :: 黄色で、文字の半分まで
+
+というようになるように、 ~emph~ コマンドを変更します。
+
+#+name: redefine-emph
+#+caption: =emph= コマンドの再定義
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage[usetype1]{uline--}
+
+\renewcommand{\emph}[1]{%
+  {\sffamily\bfseries\itshape%
+    \uline[
+      background,
+      color={[rgb]{1,1,0.0}},
+      width=0.8em,position=1pt]{#1}}}
+#+end_src
+
+/強調のテキストです。 This is an emph./
+
+これを使うと、これは:
+#+name: chaged-emph-example
+#+caption: 強調の例
+#+begin_src org
+/強調の行です。 This is emph/ 。うまくいくかな？
+#+end_src
+
+このように変換されます。
+
+/強調の行です。 This is emph/ 。うまくいくかな？
+
+*** 打ち消し線の定義
+:PROPERTIES:
+:ID:       646263af-7b79-4daa-9f3f-b95aedce72da
+:END:
+
+++Strike through++ の文字を出します。
+Org mode が打ち消し線に対して =sout= を
+使うので、 =sout= コマンドを定義します。
+
+#+name: define-strike-through
+#+caption: 打ち消し線の定義
+#+begin_src latex :tangle coco-jsarticle.sty
+\newcommand{\sout}[1]{\mline{#1}}
+#+end_src
+
+
+
+** レイアウトの変更
+:PROPERTIES:
+:ID:       c4b74fdc-ef3d-4887-9e31-f5d0d795f9b3
+:END:
+
+- 左側余白 :: 10mm
+- 右側余白 :: 10mm
+- 上側余白 :: 25mm
+- 下側余白 :: 25mm
+
+になるように、余白を設定します
+
+
+#+caption: 余白の設定
+#+name: settings-of-geometry
+#+begin_src latex :tangle coco-jsbook.sty
+\usepackage[top=25truemm,bottom=25truemm,inner=10truemm,outer=10truemm]{geometry}
+#+end_src
+** 目次の変更
+:PROPERTIES:
+:ID:       97991337-9a7a-4e42-8867-79f7e6e6065d
+:END:
+
+目次の見栄えを変更します。
+
+- [[https://github.com/thortex/jlatex-man-lll-jou][thortex/jlatex-man-lll-jou: Japanese LaTeX manual: "Love Love LaTeX for Beginners"]]
+
+
+を参考にしました。
+
+*** 主目次の変更
+:PROPERTIES:
+    :ID:       84d0748c-3812-4d67-9fde-675a313e40ac
+    :END:
+
+主目次の見栄えを変更します。
+
+#+caption: 主目次の変更
+#+name: change-list-of-contents
+#+begin_src latex :tangle coco-jsarticle.sty
+\renewcommand{\tableofcontents}{%
+  \if@twocolumn
+  \else
+    \@restonecolfalse
+  \fi
+  \section*{\contentsname%
+ 	\@mkboth{\contentsname}{\contentsname}%
+  	\pdfbookmark{\contentsname}{contents}}
+  \@starttoc{toc}%
+  \if@restonecol\twocolumn\fi
+}
+
+% 色の設定
+\def \@default@gray@level {.15}
+
+% 目次のセクションレベルの変更
+\renewcommand{\l@section}[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \addvspace{.5\cvs \@plus \p@ \@minus \p@}
+    \begingroup
+      \parindent = \z@ \relax
+      \rightskip = \@tocrmarg \relax
+      \parfillskip = -\rightskip \relax
+      \leavevmode \normalsize \sffamily
+      \@lnumwidth = 4.683em\relax
+      \advance \leftskip \@lnumwidth \hskip-\leftskip
+      \hb@xt@ \z@{\color[cmyk]{0,0,0,\@default@gray@level}%
+          \vrule \@height 1em \@width 3pt \@depth 1ex\hss}%
+      \hskip 6pt #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss#2}\par
+        {\color[cmyk]{0,0,0,\@default@gray@level}%
+          \hrule \@width \linewidth \@height 0.5ex}%
+      \par\nobreak\vskip6pt
+      \penalty\@highpenalty
+    \endgroup
+  \fi
+}
+
+\renewcommand*{\l@subsection}{\@dottedtocline{1}{1em}{3em}}
+\renewcommand*{\l@subsubsection}{\@dottedtocline{2}{3em}{4em}}
+
+% 行の終わりまでドットを描く
+\def\@dottedtocline#1#2#3#4#5{\ifnum #1>\c@tocdepth \else
+  \vskip \z@ \@plus.2\p@
+  {%\ifnum#1=2\small\fi
+    \leftskip #2\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+    \parindent #2\relax\@afterindenttrue
+   \interlinepenalty\@M
+   \leavevmode
+   \@lnumwidth #3\relax
+   \advance\leftskip \@lnumwidth \null\nobreak\hskip -\leftskip
+    {#4}\nobreak
+    \leaders\hbox{$\m@th \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
+       mu$}\hfill \nobreak\hb@xt@\@pnumwidth{%
+         \hfil%\ifnum#1=2\normalsize\fi
+         \normalfont \normalcolor #5}\par}\fi}
+
+#+end_src
+*** 図目次の変更
+:PROPERTIES:
+    :ID:       23a55317-8650-4449-a9c1-348a1ed0130d
+    :END:
+
+図目次を変更します。
+
+#+caption: 図目次の変更
+#+name: change-list-of-figures
+#+begin_src latex :tangle coco-jsarticle.sty
+  % 図目次の変更
+  \renewcommand{\listoffigures}{%
+    \if@twocolumn\@restonecoltrue\onecolumn
+    \else\@restonecolfalse\fi
+    \section*{\listfigurename % \section* レベル
+      \@mkboth{\listfigurename}{\listfigurename}%
+        \pdfbookmark{\listfigurename}{listoffigures}}% append
+    \@starttoc{lof}%
+    \if@restonecol\twocolumn\fi
+  }
+#+end_src
+
+*** 表目次の変更
+:PROPERTIES:
+    :ID:       d6714e98-b3df-46a2-ad5e-7c1bd8a9dd52
+    :END:
+
+表目次を変更します。
+
+#+caption: 表目次の変更
+#+name: change-list-of-tables
+#+begin_src latex :tangle coco-jsarticle.sty
+% 表目次の変更
+\renewcommand{\listoftables}{%
+  \if@twocolumn\@restonecoltrue\onecolumn
+  \else\@restonecolfalse\fi
+  \section*{\listtablename % \section* レベル
+  \@mkboth{\listtablename}{\listtablename}%
+  \pdfbookmark{\listtablename}{listoftables}}% append
+  \@starttoc{lot}%
+  \if@restonecol\twocolumn\fi
+}
+#+end_src
+
+** ページのヘッダーとフッターの変更
+:PROPERTIES:
+:ID:       ca0c527d-6814-47c3-ba42-d1cd57155622
+:END:
+
+ページのヘッダーとフッターを変更します。
+
+#+begin_export latex
+\tcbox[colback=white,colframe=red,size=small,on line]{
+  \textcolor{red}{\sffamily \bfseries 部外秘}
+  }
+#+end_export
+
+
+まず、「部外秘」などを入れる変数 =ConfidentialLevel= を定義します。
+
+
+#+caption: ConfidentialLevel の定義
+#+name: define-secret-level
+#+begin_src latex :tangle coco-jsarticle.sty
+\global\let\@ConfidentialLevel\@empty
+\def\ConfidentialLevel#1{\gdef\@ConfidentialLevel{#1}}
+#+end_src
+
+プリアンブルの中で、次のように定義してください。
+
+#+begin_example
+\ConfidentialLevel{部外秘}
+#+end_example
+
+定義されていなければ出力されません。
+
+次に =fancyhdr= パッケージを使って、ヘッダーとフッターを変更します。
+
+#+caption: ヘッダーとフッターの変更
+#+name: change-header-and-footer
+#+begin_src latex :tangle coco-jsarticle.sty
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  % \lhead{\rightmark}
+  \rfoot{% フッター右側に「部外秘」を出力
+    \ifx\@ConfidentialLevel\@empty
+    \else
+      \tcbox[colback=white,colframe=red,size=small,on line]{
+        \textcolor{red}{\sffamily \bfseries {\@ConfidentialLevel}}
+    }\fi%
+  }
+  \cfoot{\thepage}% フッター中央にページ番号を出力
+#+end_src
+
+#+begin_export latex
+\tcbset{colback=white,colframe=red}
+\foreach \s in {normal,title,small,fbox,tight,minimal} {
+\tcbox[size=\s,on line]{\s} }
+\tcbox[colback=white,colframe=red,size=small,on line]{
+  \textcolor{red}{\sffamily \bfseries 関係者外秘}
+  }
+
+#+end_export
+
+** tcolorbox を使った綺麗な箱
+:PROPERTIES:
+:ID:       645a6b25-f1d5-466a-aacb-06565ff97023
+:END:
+
+tcolorbox パッケージを使うと、
+箱にはいった環境を比較的簡単に作ることができます
+
+ドキュメントを見るには次のコマンドを使用してください:
+
+#+begin_example
+texdoc tcolorbox
+#+end_example
+
+*** tcolorbox の設定
+:PROPERTIES:
+:ID:       6c4916d1-3a14-46cf-b9ac-abaa140d216e
+:END:
+
+tcolorbox の設定です。
+
+#+name: settings-of-fcolorbox
+#+caption: fcolorbox の設定
+#+name: tcolorbox-settings
+#+caption: tcolorbox 設定
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins,raster,listings}
+\tcbuselibrary{external}
+\tcbuselibrary{minted}
+\tcbEXTERNALIZE
+#+end_src
+
+*** pabox 環境
+:PROPERTIES:
+:ID:       48784530-813c-457b-8da2-d4db6a2f632a
+:END:
+#+name: pabox
+
+タイトル, ラベル(オプション) つきのボックスです。
+
+#+caption: タイトル, ラベル(オプション) つきのボックス
+#+name: pabox-env
+#+begin_src latex :eval no :tangle coco-jsarticle.sty
+        \newtcolorbox[
+          auto counter,
+          number within=section]{pabox}[2][]{%
+          colback=red!5!white,
+          colframe=red!75!black,
+          fonttitle=\bfseries,
+          title=例~\thetcbcounter: #2,#1}
+#+end_src
+
+*** marker 環境
+:PROPERTIES:
+:ID:       6f2a812b-ce92-4109-9fa1-17530da214e4
+:END:
+
+#+caption: maraker 環境
+#+name: marker-env
+#+begin_src latex :tangle coco-jsarticle.sty
+\newtcolorbox{marker}[1][]{enhanced,
+  before skip=2mm,
+  after skip=3mm,
+  boxrule=0.4pt,
+  left=5mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm,
+  colback=yellow!50,
+  colframe=yellow!20!black,
+  sharp corners,
+  rounded corners=southeast,
+  arc is angular,
+  arc=3mm,
+  underlay={%
+    \path[fill=tcbcol@back!80!black] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[draw=tcbcol@frame,shorten <=-0.05mm,shorten >=-0.05mm] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[fill=yellow!50!black,draw=none] (interior.south west) rectangle node[white]{\Huge\bfseries !} ([xshift=4mm]interior.north west);
+    },
+  drop fuzzy shadow,#1}
+#+end_src
+*** programlist 環境
+:PROPERTIES:
+:ID:       f5f87e35-25dd-4008-ba36-e5f14521df44
+:END:
+
+# \begin{programlist}[label={myautocounter}]{lang}{This is a title.}
+
+
+#+index: programlist
+#+name: programlist
+#+caption:  プログラムリスト用環境 =programlist=
+#+begin_src latex :tangle coco-jsarticle.sty
+\newtcblisting[
+  auto counter,
+  number within=section,
+  list inside=box]{programlist}[3][]{
+  listing engine=minted,% リスト環境は minted
+  minted style=monokai,% 使用するテーマ
+  minted language=#2, % 使用する言語
+  minted options={fontsize=\small,
+                  breaklines,% 途中で改行する
+                  breakanywhere},%
+  title={\sffamily\bfseries リスト \thetcbcounter #3},
+  #1,% ラベル
+  breakable,%
+  colback=black!90!white,
+  colupper=white,
+  colframe=blue!75!white,
+  listing only,%
+  left=0mm,
+  enhanced,%
+   }%
+#+end_src
+
+このようにして使います:
+
+#+begin_example
+\begin{programlist}[label={prog-exam1}]{lisp}{: Emacs Lisp の例}(defun org-xor (a b)
+  "Exclusive or."
+  (if a (not b) b))
+\end{programlist}
+#+end_example
+
+#+begin_export latex
+\begin{programlist}[label={prog-exam1}]{lisp}{: Emacs Lisp の例}(defun org-xor (a b)
+  "Exclusive or."
+  (if a (not b) b))
+\end{programlist}
+#+end_export
+
+*** shellinput 環境
+:PROPERTIES:
+:ID:       6d21c611-32f6-41fe-864e-91dedea5ade1
+:END:
+シェル入力用環境の環境です。
+
+#+name: shellinput-env
+#+caption: シェル入力用環境
+#+begin_src latex :tangle coco-jsarticle.sty
+\newtcblisting{shellinput}[1][]{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+  title=#1,
+  listing only,
+  minted language=shell-session,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+#+end_src
+
+*** shelloutput 環境
+:PROPERTIES:
+:ID:       f29df8db-6549-47f9-ac81-5688037676a1
+:END:
+シェル出力用環境です。
+
+#+name: shelloutput-env
+#+caption: shelloutput 環境
+#+begin_src latex :tangle coco-jsarticle.sty
+\newtcblisting{shelloutput}[1][]{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+  title=#1,
+  listing only,
+  minted language=shell-session,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+#+end_src
+
+*** 例の出力
+:PROPERTIES:
+:ID:       1b01f11b-eb04-4301-91bd-ecf6f640960b
+:END:
+
+#+name: exampleoutput-env
+#+caption: exampleoutput 環境
+#+begin_src latex :tangle coco-jsarticle.sty
+\newtcblisting{exampleoutput}{
+  colback=black,
+  colupper=white,
+  colframe=blue!75!white,
+  listing engine=minted,
+%  title=出力,
+  listing only,
+  minted language=text,
+  minted options={fontsize=\footnotesize},
+  breakable,
+  minted style=monokai
+}
+#+end_src
+
+*** リスト目次関係
+:PROPERTIES:
+:ID:       cef8142a-6bf9-4f39-a94b-73632ea40714
+:END:
+
+
+#+name: donot-numer-tableof-list
+#+caption: リスト目次の先頭に番号を出さない
+#+begin_src latex :tangle coco-jsarticle.sty
+\makeatletter
+\def\tcb@addcontentsline#1#2{%
+  \ifx\kvtcb@listentry\@empty%
+    \ifx\kvtcb@title\@empty%
+      \ifx\tcbtitletext\@empty%
+        \addcontentsline{#1}{#2}{{\ignorespaces\kvtcb@savedelimiter}}%
+      \else%
+        \addcontentsline{#1}{#2}{{\ignorespaces\tcbtitletext}}%
+      \fi%
+    \else%
+      \addcontentsline{#1}{#2}{{\ignorespaces\kvtcb@title}}%
+    \fi%
+  \else%
+    \addcontentsline{#1}{#2}{\kvtcb@listentry}%
+  \fi%
+}
+\makeatother
+#+end_src
+
+*** プログラムリストのキャプションの変更
+:PROPERTIES:
+:ID:       da8ebb95-dd8b-4634-93bf-dd7ea65aee87
+:END:
+
+#+name: chanbge-capgtion-of-list
+#+caption: プログラムリストのキャプション
+#+begin_src latex :tangle coco-jsarticle.sty
+\renewcommand\listingscaption{プログラムコード}
+#+end_src
+
+*** プログラムリストの目次のキャプションの変更
+:PROPERTIES:
+:ID:       ea560fd6-85ad-4aec-ae91-40dc572c3156
+:END:
+
+#+name: chanbge-capgtion-of-table-of-programlist
+#+caption: プログラムリストの目次のキャプション
+#+begin_src latex :eval no :tangle coco-jsarticle.sty
+\renewcommand\listoflistingscaption{プログラムコードのリスト}
+#+end_src
+
+#+begin_src latex :tangle coco-jsarticle.sty
+\tcbset{colback=white,colframe=red}
+#+end_src
+
+** セクションの見出しの変更
+:PROPERTIES:
+:ID:       c711f90c-b437-48cc-9d49-2fba9db62550
+:END:
+
+デフォルトの jsclass の設定では見出しが
+あじけないので、変更します。
+
+fancydr の後で titlesec を読みこまないと、
+うまくいかないようです。
+
+*** titlesec を使う
+:PROPERTIES:
+:ID:       4f40865b-dd1d-412d-ae9f-d41cfa4bf8e5
+:END:
+見出しのみかけを変更するために =titlesec= パッケージを
+使います。
+
+#+name: use-titlesec-package
+#+caption: titlesec パッケージの読み込み
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage{titlesec}
+% \usepackage{anyfontsize}
+#+end_src
+*** titlesec の設定方法
+:PROPERTIES:
+:ID:       ed257563-bfeb-49ce-a254-9c8e0f96cd2d
+:END:
+
+- [[http://abenori.blogspot.com/2018/05/titlesec.html][にっき♪: titlesec]] 
+
+を参考にしました。
+
+=\titleformat= コマンドの書式です:
+
+#+name: format-of-titleformat
+#+caption: =\titleformat= の書式
+#+begin_src latex :eval no :tangle no
+\titleformat{<命令>}
+    [<特殊な形状の指定>]
+    {<書式>}
+    {<ラベル書式>}
+    {<ラベルと見出し文字列の間の空き>}
+    {<見出し文字列直前に入るコード>}
+    [<見出し直後に入るコード>]
+#+end_src
+
+*** セクションの前で改ページを行なう
+:PROPERTIES:
+:ID:       21850f40-f02e-4616-ac82-49ee08b1a2a1
+:END:
+セクションの前で改ページを行なう設定です。
+
+セクションの直前で改ページを行なうには
+次のようにします。
+
+#+name: newpage-before-section
+#+caption: セクションの直前で改ページを行なう
+#+begin_src latex :tangle coco-jsarticle.sty
+% セクションの前で改ページを行なう
+\newcommand{\sectionbreak}{\clearpage}
+#+end_src
+
+*** section の見出しの変更
+:PROPERTIES:
+:ID:       50d6ae33-0c1e-45bc-b6ba-de1c1103c211
+:END:
+
+セクションのスタイルを変更します。
+
+#+name: change-section-style
+#+caption: section のスタイルの変更
+#+begin_src latex :tangle coco-jsarticle.sty
+\titleformat{\section}
+[hang]
+{\Large\sffamily\bfseries}
+{\colorbox{blue}{\color{white}\thesection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+#+end_src
+
+*** section* の見出しの変更
+:PROPERTIES:
+:ID:       aac5a087-3c50-4f58-9604-0aec82da4f86
+:END:
+
+#+name: change-section-star-style
+#+caption: section* のスタイルの変更
+#+begin_src latex :tangle coco-jsarticle.sty
+\titleformat{name=\section,numberless}
+[hang]
+{\Large\sffamily\bfseries}
+{}{12pt}{}%
+[{\titlerule[0.5pt]}]
+#+end_src
+
+*** subsection のスタイルの変更
+:PROPERTIES:
+:ID:       0a52e459-7834-46dc-9f18-d0bf0f85b528
+:END:
+サブセクションのスタイルを変更します。
+
+#+name: change-subsection-style
+#+caption: subsection のスタイルの変更
+#+begin_src latex :tangle coco-jsarticle.sty
+\titleformat{\subsection}
+[hang]
+{\large\sffamily\bfseries}
+{\colorbox{teal}{\color{white}\thesubsection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+#+end_src
+
+*** subsubsection のスタイルの変更
+:PROPERTIES:
+:ID:       c7b761d5-61aa-4158-bece-11e9fba3d402
+:END:
+
+subsubsection スタイルを変更します。
+
+*** paragraph のスタイルの変更
+:PROPERTIES:
+:ID:       ac431e9d-8cf8-4430-9561-33e35dea0209
+:END:
+paragraph のスタイルを変更します。
+
+#+name: change-paragraph-style
+#+caption: paragraph のスタイルの変更
+#+name: change-style-of-subsubsection
+#+caption: subsubsection のスタイルの変更
+#+begin_src latex :tangle coco-jsarticle.sty
+\titleformat{\subsubsection}
+[hang]
+{\large\sffamily\bfseries}
+{\colorbox{darkslateblue}{\color{white}\thesubsubsection}}{12pt}{}%
+[{\titlerule[0.5pt]}]
+#+end_src
+
+
+
+*** セクションの空きを設定する
+:PROPERTIES:
+:ID:       49f67933-b17c-4c2a-adf8-e1c28a151954
+:END:
+
+セクションの見出しの空きを設定します。
+
+書式は次のとおりです:
+
+#+name: format-of-titlespacing
+#+caption: =titlespacing= の書式
+#+begin_src latex
+\titlespacing*{\section}{左空き}{上空き}{下空き}
+#+end_src
+
+次のように設定しました。好みに合わせて
+変更してください。
+
+#+name: set-spacing
+#+caption: titlespacing によって見出しの空きを設定する
+#+begin_src latex :tangle coco-jsarticle.sty
+\titlespacing*{\section}{0em}{2em}{2em}
+\titlespacing*{\subsection}{0em}{2em}{2em}
+\titlespacing*{\subsubsection}{0em}{2em}{2em}
+\titlespacing*{\paragraph}{0em}{2em}{2em}
+#+end_src
+
+
+** 表にストライプをつける
+:PROPERTIES:
+:ID:       41aabe5a-27bc-4ed3-9106-999be742f04d
+:END:
+
+表にストライプをつけます。
+
+- [[https://tex.stackexchange.com/questions/61747/how-to-apply-alternate-row-coloring-in-a-longtable-in-lyx][color - How to apply alternate row coloring in a longtable in LyX? - TeX - LaTeX Stack Exchange]]
+
+を参考にしました。
+
+
+#+name: make-tabular-stripe
+#+caption: 表にストライプをつける
+#+begin_src latex :tangle coco-jsarticle.sty
+% define lightgray
+\definecolor{lightgray}{gray}{0.9}
+
+% alternate rowcolors for all tables
+\let\oldtabular\tabular
+\let\endoldtabular\endtabular
+\renewenvironment{tabular}{\rowcolors{2}{white}{lightgray}\oldtabular}{\endoldtabular}
+#+end_src
+
+このような表が出力できます:
+
+#+caption: 表のテスト
+| コード   | 表示   |
+|----------+--------|
+| =\alpha= | \alpha |
+| =\beta=  | \beta  |
+| =\gamma= | \gamma |
+|  =\delta= | \delta |
+|----------+--------|
+
+** 箇条書きの変更
+:PROPERTIES:
+:ID:       9f4bf58e-f7e0-41e0-8d84-b7c084a643e6
+:END:
+
+標準の箇条書きの不満な点です:
+
+- 箇条書きのネストが 4 つまで
+- ちょっと見た目がかっこう悪い。
+
+箇条書きを変更するため、 =enumitem= パッケージを使用します。
+
+#+name: using-enumitem
+#+caption: =enumitem= パッケージの使用
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage{enumitem}
+#+end_src
+
+
+*** 箇条書きネストのレベルの設定
+:PROPERTIES:
+:ID:       c1438225-6fd0-435b-b153-61c026e57b2d
+:END:
+
+\LaTeX はデフォルトで 4 つのレベルの箇条書きのネストを
+サポートしています。しかしそれでは足りないことがあるので、
+そのネストのレベルを深くします。
+
+#+name: make-itemize-level-deeper
+#+caption: 箇条書きのネストのレベルを深くする
+#+begin_src latex :tangle coco-jsarticle.sty
+\setlistdepth{20}
+ #+end_src
+
+*** itemize の再定義
+:PROPERTIES:
+:ID:       c858c02a-834b-4f6e-b4d3-1e5e2b2ed7be
+:END:
+itemize 環境を再定義します。
+
+#+name: rewrite-itemize
+#+caption: itemize の再定義
+#+begin_src latex :tangle coco-jsarticle.sty
+\renewlist{itemize}{itemize}{20}
+\setlist[itemize]{
+  label=\textbullet, 
+  partopsep=0em,
+  parsep=0.3em,
+  labelindent=2em,
+  leftmargin=2em}
+ #+end_src
+
+例です。この Org mode の箇条書きは:
+
+#+name: itemize-in-org-example
+#+caption: Org mode itemize の例
+#+begin_src org
+- レベル1
+  - レベル2
+    - レベル3
+      - レベル4
+        - レベル5
+- レベル1
+  - レベル2
+    - レベル3
+      - レベル4
+        - レベル5
+#+end_src
+
+このように変換されます:
+
+- レベル1
+  - レベル2
+    - レベル3
+      - レベル4
+        - レベル5
+- レベル1
+  - レベル2
+    - レベル3
+      - レベル4
+        - レベル5
+
+*** enumerate の再定義
+:PROPERTIES:
+:ID:       6ffca151-9f5b-4deb-b48a-22d8aff82bfc
+:END:
+
+enumerate 環境を再定義します。
+
+#+name: rewrite-enumerate
+#+caption: enumerate の再定義
+#+begin_src latex :tangle coco-jsarticle.sty
+\renewlist{enumerate}{enumerate}{20}
+  \setlist[enumerate]{
+    leftmargin=!, 
+    font=\sffamily\bfseries,
+    label*=\arabic*.,% ラベルを 1., 1.1. 1.1.1 に
+%    label=\arabic*, 
+    itemindent=!, 
+    topsep=0.3em,
+    partopsep=0.3em,
+    parsep=0.3em,
+    labelsep=!, 
+    labelwidth=!, 
+    labelindent=2em}
+ #+end_src
+
+これは
+
+#+name: orderedlist-in-org-example
+#+caption: Org mode での順序つきリストアイテム
+#+begin_src org
+1. レベル 1
+   1. レベル 2
+      1. レベル 3
+         1. レベル 4
+            1. レベル 5
+2. レベル 1
+   1. レベル 2
+      1. レベル 3
+         1. レベル 4
+            1. レベル 5
+#+end_src
+
+このように変換されます:
+
+
+1. レベル 1
+   1. レベル 2
+      1. レベル 3
+         1. レベル 4
+            1. レベル 5
+2. レベル 1
+   1. レベル 2
+      1. レベル 3
+         1. レベル 4
+            1. レベル 5
+
+*** desctiption の再定義
+:PROPERTIES:
+:ID:       246d275e-726a-4cc0-af1a-99108a1c0af8
+:END:
+
+=desctiption= 環境を再定義します。
+
+#+name: rewrite-desctiption
+#+caption: desctiption の再定義
+#+begin_src latex :tangle coco-jsarticle.sty
+\renewlist{description}{description}{20}
+\setlist[description]{
+  font=\sffamily\bfseries, 
+  style=nextline,
+  labelindent=2em,% ラベルのインデント量
+  }
+#+end_src
+これは
+
+#+name: description-in-org-example
+#+caption: Org mode での説明つきリスト
+#+begin_src org
+- 用語1 :: 用語の説明1。
+- 用語2 :: 用語の説明2。長くなるとどうなるだろうか？ うまくいくかな？
+         ちゃんと複数行に行くかな。
+- とってもとってもとっても長い用語 :: 
+     用語の説明2。長くなるとどうなるだろうか？ うまくいくかな？
+     ちゃんと複数行に行くかな。
+#+end_src
+
+このように変換されます:
+
+
+- 用語1 :: 用語の説明1。
+- 用語2 :: 用語の説明2。長くなるとどうなるだろうか？ 
+         うまくいくかな？
+         ちゃんと複数行に行くかな。
+- とってもとってもとっても長い用語 :: 
+     用語の説明2。長くなるとどうなるだろうか？ 
+     うまくいくかな？
+     ちゃんと複数行に行くかな。
+
+** 数式
+:PROPERTIES:
+:ID:       9dc53bdc-1867-44a4-ba8c-ced3ac132076
+:END:
+
+とっても一般的な数式の設定です。
+
+#+name: using-amsmath
+#+caption: AMSMath を使う
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+#+end_src
+
+Org mode の中で次のように書くと:
+
+#+name: equ-example-1
+#+caption: Org mode での数式の例1
+#+begin_src org
+\begin{equation}
+  A = \begin{pmatrix}
+        a_{11} & \ldots & a_{1n} \\
+        \vdots & \ddots & \vdots \\
+        a_{m1} & \ldots & a_{mn}
+      \end{pmatrix}
+\end{equation}
+#+end_src
+
+このような数式が出力されます:
+
+\begin{equation}
+  A = \begin{pmatrix}
+        a_{11} & \ldots & a_{1n} \\
+        \vdots & \ddots & \vdots \\
+        a_{m1} & \ldots & a_{mn}
+      \end{pmatrix}
+\end{equation}
+
+** hyperref 設定
+   :PROPERTIES:
+   :ID:       780b4468-e98a-4cfb-bbf8-9e65e36cd2ec
+   :END:
+
+hyperref 関連の設定です。
+
+*** hyperref を使う
+:PROPERTIES:
+:ID:       9ad9f274-9a28-41b2-9119-5331cf7ac09c
+:END:
+
+hyperref を使う設定です。
+
+#+name: use-hyperref
+#+caption: hyperref を読み込む
+#+begin_src latex :tangle coco-jsarticle.sty
+\usepackage{hyperref}
+#+end_src
+
+*** PDF のしおりの文字化けを防ぐ
+:PROPERTIES:
+:ID:       9a754dfb-a267-4e90-8598-08428de13bef
+:END:
+
+#+name: prevent-pdf-mojibake
+#+caption: PDF の文字化けを防ぐ
+#+begin_src latex :tangle coco-jsarticle.sty
+% PDF の文字化けを防ぐ
+\usepackage{pxjahyper}
+#+end_src
+
+
+Org mode のファイルのどこかに次の行を書いておくと、
+PDF のキーワードが設定されます。
+
+#+name: set-pdf-keyword
+#+caption: PDF 用キーワードの設定
+#+begin_src org
+#+KEYWORDS:  upLaTeX tcolorbox
+#+end_src
+
+** 索引の作成
+:PROPERTIES:
+   :ID:       7db6ca8f-c936-4540-bdc9-2bf68d230ccb
+   :END:
+#+index: makeindex
+#+index: makeidx
+
+索引を出力するには =makeidx= パッケージを使います。
+
+#+name: use-makeidx-package
+#+caption: 索引出力用のパッケージの読みこみ
+#+begin_src latex :eval no :tangle coco-jsarticle.sty
+\usepackage{makeidx}
+#+end_src
+
+そして次に、 =makeindex= コマンドを使って索引を作成します。
+
+#+name: makeindex
+#+caption: 索引作成
+#+begin_src latex :eval no :tangle coco-jsarticle.sty
+\makeindex
+#+end_src
+
+
+
+* latexmk によるコンパイルの自動化
+:PROPERTIES:
+:ID:       b407327e-782f-41cd-88ed-51e1d90c1b4c
+:END:
+#+index: .latexmkrc
+#+index: latexmk
+
+latexmk を使うと、面倒な \LaTeX ファイルの
+コンパイルを自動化してくれます。
+
+** =.latexmkrc= の書きかた
+:PROPERTIES:
+:ID:       91ca257c-ed7f-4c03-95ef-f2fe1ef6b625
+:END:
+
+=.latexmkrc= の例です。
+
+#+name: latexmkrc-example
+#+caption: =.latexmkrc= の例
+#+begin_src sh :tangle .latexmkrc
+# LaTeX コマンドの設定
+$latex  = 'uplatex -src-specials -shell-escape -synctex=1 -interaction=nonstopmode';
+
+# BibTeX コンパイラ
+$bibtex = 'upbibtex';
+# $bibtex = 'biber';
+
+$dvipdf  = 'dvipdfmx %O -o %D %S';
+
+$makeindex  = '/usr/bin/mendex -U -r -c -g -d ~/texmf/makeindex/dict/main.dict -s ~/texmf/makeindex/ist/dot.ist -p any';
+
+$pdf_previewer = 'xdg-open %O %S';
+
+# 最大の繰り返し回数
+$max_repeat       = 5;
+
+# 0：pdf化しない場合
+# 1：pdflatexを使う場合
+# 2：ps2pdfを使う場合
+# 3：dviファイルからpdfを作成する場合
+$pdf_mode = 3;
+
+$pdf_update_method = 0;
+
+#+end_src
+
+** latexmk の使い方
+:PROPERTIES:
+:ID:       1b663465-d1a8-400c-9c7c-7b864082e36d
+:END:
+
+#+begin_example
+latexmk foge.tex
+#+end_example
+
+
+#+LATEX: \appendix
+
+* ライセンス
+   :PROPERTIES:
+   :ID:       6adb49c3-9050-4cab-9493-1ee1bbfb7d31
+   :END:
+MIT。
+
+
+ # 図目次の出力
+ #+LATEX: \listoffigures
+ #+TOC: figure
+ # 表目次の出力
+ #+TOC: tables 
+
+ # tcolorbox でのプログラムリスト出力
+ #+LATEX: \tcblistof[\section*]{box}{プログラムリスト}
+
+ #+LATEX: \printindex
